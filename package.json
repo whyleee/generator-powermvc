@@ -1,0 +1,34 @@
+{
+  "name": "generator-aspnet-powermvc",
+  "version": "0.1.0",
+  "description": "Powerfull front-end features for ASP.NET MVC apps",
+  "license": "MIT",
+  "main": "app/index.js",
+  "repository": "whyleee/generator-aspnet-powermvc",
+  "author": {
+    "name": "Pavel Nezhencev",
+    "email": "whyleee@gmail.com",
+    "url": "https://github.com/whyleee"
+  },
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "files": [
+    "app"
+  ],
+  "keywords": [
+    "yeoman-generator",
+    "front-end",
+    "asp.net",
+    "mvc"
+  ],
+  "dependencies": {
+    "yeoman-generator": "~0.16.0",
+    "chalk": "~0.4.0"
+  },
+  "devDependencies": {
+  },
+  "peerDependencies": {
+    "yo": ">=1.0.0"
+  }
+}
