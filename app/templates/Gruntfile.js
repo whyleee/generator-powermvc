@@ -7,12 +7,12 @@
 // use this if you want to recursively match all subfolders:
 // 'test/spec/**/*.js'
 
+var request = require('request');
+
 module.exports = function (grunt) {
 
     // Load grunt tasks automatically
     require('load-grunt-tasks')(grunt);
-    grunt.loadNpmTasks('grunt-msbuild');
-    grunt.loadNpmTasks('grunt-contrib-htmlmin');
 
     // Time how long tasks take. Can help when optimizing build times
     require('time-grunt')(grunt);
@@ -23,16 +23,24 @@ module.exports = function (grunt) {
         // Project settings
         yeoman: {
             // Configurable paths
-            app: '<%= appDir %>',
-            dist: 'dist',
-            port: 9000
+            proj: '<%= projName %>',
+            host: '<%= host %>',
+            port: <%= port %>,
+            cssDir: '<%= cssDir %>',
+            sassDir: '<%= sassDir %>',
+            jsDir: '<%= jsDir %>',
+            jsLibDir: '<%= jsLibDir %>',
+            bowerDir: '<%= bowerDir %>',
+            imgDir: '<%= imgDir %>',
+            fontsDir: '<%= fontsDir %>',
+            vsVer: '<%= vsVer %>'
         },
 
         // Watches files for changes and runs tasks based on the changed files
         watch: {
             options: {
                 nospawn: true,
-                livereload: 32694
+                livereload: 35729
             },
             // grunt
             gruntfile: {
@@ -40,39 +48,39 @@ module.exports = function (grunt) {
             },
             // front-end files
             html: {
-                files: ['<%= yeoman.app %>/Views/**/*.cshtml']
-            },
-            sass: {
-                files: ['<%= yeoman.app %>/sass/{,*/}*.{scss,sass}'],
-                tasks: ['compass:server']
+                files: ['Views/**/*.cshtml']
             },
             css: {
-                files: ['<%= yeoman.app %>/css/{,*/}*.css']
+                files: ['<%%= yeoman.cssDir %>/{,*/}*.css']
+            },
+            sass: {
+                files: ['<%%= yeoman.sassDir %>/{,*/}*.{scss,sass}'],
+                tasks: ['compass:server', 'refreshCss'],
+                options: {
+                    livereload: false
+                }
             },
             js: {
-                files: ['<%= yeoman.app %>/js/{,*/}*.js'],
+                files: ['<%%= yeoman.jsDir %>/{,*/}*.js'],
                 tasks: ['jshint']
             },
             gfx: {
-                files: ['<%= yeoman.app %>/gfx/{,*/}*.{gif,jpeg,jpg,png,svg,webp}']
+                files: ['<%%= yeoman.imgDir %>/{,*/}*.{gif,jpeg,jpg,png,svg,webp}']
             },
             // back-end files
-            webconfig: {
-                files: ['<%= yeoman.app %>/Web.config']
+            config: {
+                files: ['*.config', 'App_Config/**/*.config']
             },
             cs: {
-                files: ['<%= yeoman.app %>/**/*.cs'],
+                files: ['**/*.cs'],
                 tasks: ['msbuild']
-            },
-            // bin: {
-            //     files: ['<%= yeoman.app %>/bin/{,*/}*.dll']
-            // }
+            }
         },
 
         // Rebuilds the project
         msbuild: {
             dev: {
-                src: ['<%= yeoman.app %>/<%= yeoman.app %>.csproj'],
+                src: ['<%%= yeoman.proj %>.csproj'],
                 options: {
                     projectConfiguration: 'Debug',
                     targets: ['Build'],
@@ -80,23 +88,40 @@ module.exports = function (grunt) {
                     maxCpuCount: 8,
                     buildParameters: {
                         WarningLevel: 2,
-                        VisualStudioVersion: '12.0'
+                        VisualStudioVersion: '<%%= yeoman.vsVer %>'
                     },
                     verbosity: 'quiet'
                 }
             }
         },
 
-        // Empties folders to start fresh
+        // Empties files/dirs to start fresh
         clean: {
+            dist: [
+                'Views/min',
+                '<%%= yeoman.cssDir %>/min.css',
+                '<%%= yeoman.jsDir %>/min.js'
+            ],
+            postdist: [
+                'Views/Shared/_Layout_processed.cshtml',
+                'Views/min/Shared/_Layout_processed.cshtml'
+            ]
+        },
+
+        // Process HTML files
+        processhtml: {
             dist: {
-                files: [{
-                    dot: true,
-                    src: [
-                        '<%= yeoman.dist %>/*',
-                        '!<%= yeoman.dist %>/.git*'
-                    ]
-                }]
+                files: {
+                    'Views/Shared/_Layout_processed.cshtml': ['Views/Shared/_Layout.cshtml']
+                }
+            }
+        },
+
+        // Copy files
+        copy: {
+            postdist: {
+                src: 'Views/min/Shared/_Layout_processed.cshtml',
+                dest: 'Views/min/Shared/_Layout.cshtml'
             }
         },
 
@@ -108,22 +133,23 @@ module.exports = function (grunt) {
             },
             all: [
                 'Gruntfile.js',
-                '<%= yeoman.app %>/js/*.js'
+                '<%%= yeoman.jsDir %>/*.js',
+                '!<%%= yeoman.jsLibDir %>/*'
             ]
         },
 
         // Compiles Sass to CSS and generates necessary files if requested
         compass: {
             options: {
-                sassDir: '<%= yeoman.app %>/sass',
-                cssDir: '<%= yeoman.app %>/css',
-                imagesDir: '<%= yeoman.app %>/gfx',
-                javascriptsDir: '<%= yeoman.app %>/js',
-                fontsDir: '<%= yeoman.app %>/css/fonts',
-                httpStylesheetsPath: '/css',
-                httpImagesPath: '/gfx',
-                httpJavascriptsPath: '/js',
-                httpFontsPath: '/css/fonts',
+                sassDir: '<%%= yeoman.sassDir %>',
+                cssDir: '<%%= yeoman.cssDir %>',
+                javascriptsDir: '<%%= yeoman.jsDir %>',
+                imagesDir: '<%%= yeoman.imgDir %>',
+                fontsDir: '<%%= yeoman.fontsDir %>',
+                httpStylesheetsPath: '/<%%= yeoman.cssDir %>',
+                httpJavascriptsPath: '/<%%= yeoman.jsDir %>',
+                httpImagesPath: '/<%%= yeoman.imgDir %>',
+                httpFontsPath: '/<%%= yeoman.fontsDir %>',
                 relativeAssets: false,
                 assetCacheBuster: false
             },
@@ -134,14 +160,6 @@ module.exports = function (grunt) {
                 options: {
                     debugInfo: true
                 }
-            }
-        },
-
-        // Automatically inject Bower components into the HTML file
-        'bower-install': {
-            app: {
-                //html: '<%= yeoman.app %>/index.html',
-                ignorePath: '<%= yeoman.app %>/'
             }
         },
 
@@ -160,17 +178,21 @@ module.exports = function (grunt) {
                 },
                 files: [{
                     expand: true,
-                    cwd: '<%= yeoman.dist %>',
-                    src: 'Views/**/*.cshtml',
-                    dest: '<%= yeoman.dist %>'
+                    cwd: 'Views',
+                    src: '**/*.cshtml',
+                    dest: 'Views/min'
                 }]
             }
         },
         cssmin: {
             dist: {
+                options: {
+                    keepSpecialComments: false
+                },
                 files: {
-                    '<%= yeoman.dist %>/css/min.css': [
-                        '<%= yeoman.app %>/css/{,*/}*.css'
+                    '<%%= yeoman.cssDir %>/min.css': [
+                        '<%%= yeoman.cssDir %>/{,*/}*.css',
+                        '!<%%= yeoman.cssDir %>/{,*/}*.min.css',
                     ]
                 }
             }
@@ -178,65 +200,90 @@ module.exports = function (grunt) {
         uglify: {
             dist: {
                 files: {
-                    '<%= yeoman.dist %>/js/core.js': [
-                        '<%= yeoman.dist %>/js/min.js'
+                    '<%%= yeoman.jsDir %>/min.js': [
+                        '<%%= yeoman.jsDir %>/{,*/}*.js',
+                        '!<%%= yeoman.jsDir %>/{,*/}*.min.js',
+                        '!<%%= yeoman.jsDir %>/_references.js',
+                        '!<%%= yeoman.jsDir %>/jquery-*.js'
                     ]
                 }
             }
         },
 
-        // Copies remaining files to places other tasks can use
-        copy: {
-            dist: {
-                files: [{
-                    expand: true,
-                    dot: true,
-                    cwd: '<%= yeoman.app %>',
-                    dest: '<%= yeoman.dist %>',
-                    src: [
-                        '*.{ico,png,txt}',
-                        'Web.config',
-                        'gfx/{,*/}*.webp',
-                        'Views/{,*/}*.cshtml',
-                        'css/fonts/{,*/}*.*',
-                        'js/packages/'
-                    ]
-                }]
+        // Open in browser
+        open: {
+            server: {
+                path: 'http://<%%= yeoman.host %>:<%%= yeoman.port %>',
+                app: 'chrome'
             }
         },
 
         // Run some tasks in parallel to speed up build process
         concurrent: {
-            server: [
+            serve: [
+                'msbuild',
                 'compass:server'
             ],
             dist: [
-                'compass',
+                'msbuild',
+                'compass:dist'
+            ],
+            min: [
+                'cssmin',
+                'uglify',
+                'htmlmin:dist'
             ]
         }
     });
 
+    var changedCss = [];
+
+    grunt.event.on('watch', function(action, filepath) {
+        if (filepath.indexOf('.scss', filepath.length - '.scss'.lenth) != -1 ||
+            filepath.indexOf('.sass', filepath.length - '.sass'.lenth) != -1) {
+            var sassDirPath = ('<%= sassDir %>\\').replace('/', '\\');
+            var cssDirPath = ('<%= cssDir %>\\').replace('/', '\\');
+            var cssPath = filepath.replace(sassDirPath, cssDirPath)
+                .replace('.scss', '.css')
+                .replace('.sass', '.css');
+            changedCss.push(cssPath);
+            console.log('CSS path: ' + cssPath);
+        }
+    });
+
+    grunt.registerTask('refreshCss', function (target) {
+        request.post('http://localhost:35729/changed', {
+                json: {
+                    files: changedCss
+                }
+            }, function (error, response, body) {
+                if (error) {
+                    grunt.log.writeln('ERROR'.red);
+                }
+                changedCss = [];
+            }
+        );
+    });
 
     grunt.registerTask('serve', function (target) {
         if (target === 'dist') {
-            //return grunt.task.run(['build', 'connect:dist:keepalive']);
             return grunt.task.run(['build', 'open:server']);
         }
 
         grunt.task.run([
-            'msbuild',
-            'compass:server', //concurrent:server',
+            'concurrent:serve',
+            'open:server',
             'watch'
         ]);
     });
 
     grunt.registerTask('build', [
         'clean:dist',
-        'compass:dist', // 'concurrent:dist',
-        'cssmin',
-        'uglify',
-        'copy:dist',
-        'htmlmin:dist'
+        'concurrent:dist',
+        'processhtml',
+        'concurrent:min',
+        'copy:postdist',
+        'clean:postdist'
     ]);
 
     grunt.registerTask('default', [
