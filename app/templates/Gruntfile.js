@@ -15,6 +15,8 @@ module.exports = function (grunt) {
     // Time how long tasks take. Can help when optimizing build times
     require('time-grunt')(grunt);
 
+    var path = require('path');
+
     // Define the configuration for all the tasks
     grunt.initConfig({
 
@@ -29,6 +31,7 @@ module.exports = function (grunt) {
             jsDir: '<%= jsDir %>',
             jsLibDir: '<%= jsLibDir %>',
             bowerDir: '<%= bowerDir %>',
+            bowerDirName: path.basename('<%= bowerDir %>'),
             imgDir: '<%= imgDir %>',
             fontsDir: '<%= fontsDir %>',
             vsVer: '<%= vsVer %>'
@@ -184,17 +187,41 @@ module.exports = function (grunt) {
                 }
             }
         },
-        uglify: {
-            dist: {
-                files: {
-                    '<%%= yeoman.jsDir %>/min.js': [
-                        '<%%= yeoman.jsDir %>/{,*/}*.js',
-                        '!<%%= yeoman.jsDir %>/{,*/}*.min.js',
-                        '!<%%= yeoman.jsDir %>/_references.js',
-                        '!<%%= yeoman.jsDir %>/jquery-*.js'
-                    ]
+        // uglify: {
+        //     dist: {
+        //         files: {
+        //             '<%%= yeoman.jsDir %>/min.js': [
+        //                 '<%%= yeoman.jsDir %>/{,*/}*.js',
+        //                 '!<%%= yeoman.jsDir %>/{,*/}*.min.js',
+        //                 '!<%%= yeoman.jsDir %>/_references.js',
+        //                 '!<%%= yeoman.jsDir %>/jquery-*.js'
+        //             ]
+        //         }
+        //     }
+        // },
+        bower: {
+            all: {
+                rjsConfig: '<%%= yeoman.jsDir %>/config.js'
+            }
+        },
+        requirejs: {
+            compile: {
+                options: {
+                    baseUrl: '<%%= yeoman.jsDir %>',
+                    mainConfigFile: '<%%= yeoman.jsDir %>/config.js',
+                    name: 'main',
+                    out: '<%%= yeoman.jsDir %>/min.js',
+                    paths: {
+                        'requireLib': '<%%= yeoman.bowerDirName %>/requirejs/require'
+                    },
+                    include: ['requireLib'],
+                    preserveLicenseComments: false
                 }
             }
+        },
+
+        install: {
+            bower: {}
         },
 
         // Open in browser
@@ -207,13 +234,14 @@ module.exports = function (grunt) {
 
         // Run some tasks in parallel to speed up build process
         concurrent: {
-            dist: [
+            build: [
+                'install:bower',
                 'msbuild',
                 'compass:dist'
             ],
             min: [
                 'cssmin',
-                'uglify',
+                'requirejs',
                 'htmlmin:dist'
             ],
             watch: {
@@ -223,6 +251,15 @@ module.exports = function (grunt) {
                 }
             }
         }
+    });
+
+    grunt.registerTask('install', 'install/restore npm and bower dependencies', function(cmd) {
+        var exec = require('child_process').exec;
+        var done = this.async();
+        exec(cmd + ' install', {cwd: '.'}, function(err, stdout, stderr) {
+            console.log(stdout);
+            done();
+        });
     });
 
     grunt.registerTask('serve', function (target) {
@@ -239,7 +276,8 @@ module.exports = function (grunt) {
 
     grunt.registerTask('build', [
         'clean:dist',
-        'concurrent:dist',
+        'concurrent:build',
+        'bower',
         'processhtml',
         'concurrent:min',
         'copy:postdist',

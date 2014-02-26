@@ -89,6 +89,8 @@ var AspnetPowermvcGenerator = yeoman.generators.Base.extend({
     this.template('_package.json', 'package.json');
     this.template('_bower.json', 'bower.json');
 
+    this.copy('main.js', this.jsDir + '/main.js');
+
     // insert livereload ref into _Layout.cshtml
     var layoutHtml = this.readFileAsString('Views/Shared/_Layout.cshtml');
     if (layoutHtml.indexOf('//localhost:35729/livereload.js') == -1) {
