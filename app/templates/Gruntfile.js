@@ -7,8 +7,6 @@
 // use this if you want to recursively match all subfolders:
 // 'test/spec/**/*.js'
 
-var request = require('request');
-
 module.exports = function (grunt) {
 
     // Load grunt tasks automatically
@@ -39,41 +37,29 @@ module.exports = function (grunt) {
         // Watches files for changes and runs tasks based on the changed files
         watch: {
             options: {
-                nospawn: true,
-                livereload: 35729
-            },
-            // grunt
-            gruntfile: {
-                files: ['Gruntfile.js']
-            },
-            // front-end files
-            html: {
-                files: ['Views/**/*.cshtml']
-            },
-            css: {
-                files: ['<%%= yeoman.cssDir %>/{,*/}*.css']
-            },
-            sass: {
-                files: ['<%%= yeoman.sassDir %>/{,*/}*.{scss,sass}'],
-                tasks: ['compass:server', 'refreshCss'],
-                options: {
-                    livereload: false
-                }
+                nospawn: true
             },
             js: {
                 files: ['<%%= yeoman.jsDir %>/{,*/}*.js'],
                 tasks: ['jshint']
             },
-            gfx: {
-                files: ['<%%= yeoman.imgDir %>/{,*/}*.{gif,jpeg,jpg,png,svg,webp}']
-            },
-            // back-end files
-            config: {
-                files: ['*.config', 'App_Config/**/*.config']
-            },
             cs: {
                 files: ['**/*.cs'],
                 tasks: ['msbuild']
+            },
+            reload: {
+                options: {
+                    livereload: 35729
+                },
+                files: [
+                    'Gruntfile.js',
+                    'Views/**/*.cshtml',
+                    '<%%= yeoman.cssDir %>/{,*/}*.css',
+                    '<%%= yeoman.jsDir %>/{,*/}*.js',
+                    '<%%= yeoman.imgDir %>/{,*/}*.{gif,jpeg,jpg,png,svg,webp}',
+                    '*.config', 'App_Config/**/*.config',
+                    '**/*.cs'
+                ]
             }
         },
 
@@ -156,9 +142,10 @@ module.exports = function (grunt) {
             dist: {
                 options: {}
             },
-            server: {
+            watch: {
                 options: {
-                    debugInfo: true
+                    debugInfo: true,
+                    watch: true
                 }
             }
         },
@@ -220,10 +207,6 @@ module.exports = function (grunt) {
 
         // Run some tasks in parallel to speed up build process
         concurrent: {
-            serve: [
-                'msbuild',
-                'compass:server'
-            ],
             dist: [
                 'msbuild',
                 'compass:dist'
@@ -232,37 +215,14 @@ module.exports = function (grunt) {
                 'cssmin',
                 'uglify',
                 'htmlmin:dist'
-            ]
-        }
-    });
-
-    var changedCss = [];
-
-    grunt.event.on('watch', function(action, filepath) {
-        if (filepath.indexOf('.scss', filepath.length - '.scss'.lenth) != -1 ||
-            filepath.indexOf('.sass', filepath.length - '.sass'.lenth) != -1) {
-            var sassDirPath = ('<%= sassDir %>\\').replace('/', '\\');
-            var cssDirPath = ('<%= cssDir %>\\').replace('/', '\\');
-            var cssPath = filepath.replace(sassDirPath, cssDirPath)
-                .replace('.scss', '.css')
-                .replace('.sass', '.css');
-            changedCss.push(cssPath);
-            console.log('CSS path: ' + cssPath);
-        }
-    });
-
-    grunt.registerTask('refreshCss', function (target) {
-        request.post('http://localhost:35729/changed', {
-                json: {
-                    files: changedCss
+            ],
+            watch: {
+                tasks: ['watch', 'compass:watch'],
+                options: {
+                    logConcurrentOutput: true
                 }
-            }, function (error, response, body) {
-                if (error) {
-                    grunt.log.writeln('ERROR'.red);
-                }
-                changedCss = [];
             }
-        );
+        }
     });
 
     grunt.registerTask('serve', function (target) {
@@ -271,9 +231,9 @@ module.exports = function (grunt) {
         }
 
         grunt.task.run([
-            'concurrent:serve',
+            'msbuild',
             'open:server',
-            'watch'
+            'concurrent:watch'
         ]);
     });
 
