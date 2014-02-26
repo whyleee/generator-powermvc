@@ -91,12 +91,40 @@ var AspnetPowermvcGenerator = yeoman.generators.Base.extend({
 
     this.copy('main.js', this.jsDir + '/main.js');
 
-    // insert livereload ref into _Layout.cshtml
     var layoutHtml = this.readFileAsString('Views/Shared/_Layout.cshtml');
-    if (layoutHtml.indexOf('//localhost:35729/livereload.js') == -1) {
-      layoutHtml = layoutHtml.replace('</body>', '    <!-- build:remove:dist -->\r\n    <script src="//localhost:35729/livereload.js"></script>\r\n    <!-- /build -->\r\n</body>');
-      this.write('Views/Shared/_Layout.cshtml', layoutHtml);
+
+    // add css refs
+    if (layoutHtml.indexOf('build:css') == -1) {
+      layoutHtml = this.append(layoutHtml, 'head',
+        '    <!-- build:css /' + this.cssDir + '/min.css -->\r\n' +
+        '    <link rel="stylesheet" href="/' + this.cssDir + '/site.css"/>\r\n' +
+        '    <!-- endbuild -->\r\n'
+      );
     }
+
+    // add js refs
+    if (layoutHtml.indexOf('build:js') == -1) {
+      layoutHtml = this.append(layoutHtml, 'body',
+        '    <!-- build:js /' + this.jsDir + '/min.js -->\r\n' +
+        '    <script src="/' + this.bowerDir + '/requirejs/require.js"></script>\r\n' +
+        '    <script>require([\'config\'], function(){require([\'main\']);});</script>\r\n' +
+        '    <!-- endbuild -->\r\n'
+      );
+    }
+
+    // remove js bundles
+    layoutHtml = layoutHtml.replace('    @Scripts.Render("~/bundles/jquery")\r\n', '');
+
+    // insert livereload ref
+    if (layoutHtml.indexOf('//localhost:35729/livereload.js') == -1) {
+      layoutHtml = this.append(layoutHtml, 'body',
+        '    <!-- build:remove:dist -->\r\n' +
+        '    <script src="//localhost:35729/livereload.js"></script>\r\n' +
+        '    <!-- /build -->\r\n'
+      );
+    }
+
+    this.write('Views/Shared/_Layout.cshtml', layoutHtml);
   },
 
   projectfiles: function () {

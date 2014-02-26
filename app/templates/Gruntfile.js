@@ -88,8 +88,8 @@ module.exports = function (grunt) {
         clean: {
             dist: [
                 'Views/min',
-                '<%%= yeoman.cssDir %>/min.css',
-                '<%%= yeoman.jsDir %>/min.js'
+                '<%%= yeoman.cssDir %>/*.min.css',
+                '<%%= yeoman.jsDir %>/*.min.js'
             ],
             postdist: [
                 'Views/Shared/_Layout_processed.cshtml',
@@ -219,6 +219,22 @@ module.exports = function (grunt) {
                 }
             }
         },
+        rev: {
+            dist: {
+                files: {
+                    src: [
+                        '<%%= yeoman.cssDir %>/min.css',
+                        '<%%= yeoman.jsDir %>/min.js'
+                    ]
+                }
+            }
+        },
+        usemin: {
+            options: {
+                assetsDirs: ['']
+            },
+            html: ['Views/Shared/_Layout_processed.cshtml']
+        },
 
         install: {
             bower: {}
@@ -241,8 +257,7 @@ module.exports = function (grunt) {
             ],
             min: [
                 'cssmin',
-                'requirejs',
-                'htmlmin:dist'
+                'requirejs'
             ],
             watch: {
                 tasks: ['watch', 'compass:watch'],
@@ -280,6 +295,9 @@ module.exports = function (grunt) {
         'bower',
         'processhtml',
         'concurrent:min',
+        'rev',
+        'usemin',
+        'htmlmin',
         'copy:postdist',
         'clean:postdist'
     ]);
