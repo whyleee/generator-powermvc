@@ -21,6 +21,7 @@
     "grunt-msbuild": "~0.1.11",
     "grunt-processhtml": "~0.2.6",
     "grunt-bower-requirejs": "~0.8.4",
+    "grunt-google-cdn-implicit": "~0.3.0",
     "load-grunt-tasks": "~0.2.0",
     "time-grunt": "~0.2.0",
     "jshint-stylish": "~0.1.3"

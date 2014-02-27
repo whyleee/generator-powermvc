@@ -187,18 +187,21 @@ module.exports = function (grunt) {
                 }
             }
         },
-        // uglify: {
-        //     dist: {
-        //         files: {
-        //             '<%%= yeoman.jsDir %>/min.js': [
-        //                 '<%%= yeoman.jsDir %>/{,*/}*.js',
-        //                 '!<%%= yeoman.jsDir %>/{,*/}*.min.js',
-        //                 '!<%%= yeoman.jsDir %>/_references.js',
-        //                 '!<%%= yeoman.jsDir %>/jquery-*.js'
-        //             ]
-        //         }
-        //     }
-        // },
+        uglify: {
+            dist: {
+                files: {
+                    // '<%%= yeoman.jsDir %>/min.js': [
+                    //     '<%%= yeoman.jsDir %>/{,*/}*.js',
+                    //     '!<%%= yeoman.jsDir %>/{,*/}*.min.js',
+                    //     '!<%%= yeoman.jsDir %>/_references.js',
+                    //     '!<%%= yeoman.jsDir %>/jquery-*.js'
+                    // ]
+                    '<%%= yeoman.jsDir %>/min.amd.js': [
+                        '<%%= yeoman.bowerDir %>/almond/almond.js'
+                    ]
+                }
+            }
+        },
         bower: {
             all: {
                 rjsConfig: '<%%= yeoman.jsDir %>/config.js'
@@ -209,9 +212,11 @@ module.exports = function (grunt) {
                 options: {
                     baseUrl: '<%%= yeoman.jsDir %>',
                     mainConfigFile: '<%%= yeoman.jsDir %>/config.js',
-                    name: 'almond',
+                    name: 'main',
                     out: '<%%= yeoman.jsDir %>/min.js',
-                    include: ['main'],
+                    paths: {
+                        'jquery': 'empty:'
+                    },
                     preserveLicenseComments: false
                 }
             }
@@ -231,6 +236,22 @@ module.exports = function (grunt) {
                 assetsDirs: ['']
             },
             html: ['Views/Shared/_Layout_processed.cshtml']
+        },
+        cdnify: {
+            dist: {
+                options: {
+                    localFallback: true,
+                    bowerDir: '<%%= yeoman.bowerDir %>',
+                },
+                html: ['Views/Shared/_Layout_processed.cshtml'],
+                almond: '<%%= yeoman.jsDir %>/min.amd.js',
+                components: {
+                    'jquery': {
+                        localPath: '<%%= yeoman.bowerDir %>/jquery/dist/jquery.min.js',
+                        success: 'window.jQuery'
+                    }
+                }
+            }
         },
 
         install: {
@@ -253,8 +274,9 @@ module.exports = function (grunt) {
                 'compass:dist'
             ],
             min: [
+                'requirejs',
                 'cssmin',
-                'requirejs'
+                'uglify',
             ],
             watch: {
                 tasks: ['watch', 'compass:watch'],
@@ -292,6 +314,7 @@ module.exports = function (grunt) {
         'bower',
         'processhtml',
         'concurrent:min',
+        'cdnify',
         'rev',
         'usemin',
         'htmlmin',
