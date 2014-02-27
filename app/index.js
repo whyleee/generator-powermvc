@@ -106,8 +106,8 @@ var AspnetPowermvcGenerator = yeoman.generators.Base.extend({
     if (layoutHtml.indexOf('build:js') == -1) {
       layoutHtml = this.append(layoutHtml, 'body',
         '    <!-- build:js /' + this.jsDir + '/min.js -->\r\n' +
-        '    <script data-main="/' + this.jsDir + '/config" src="/' + this.bowerDir + '/requirejs/require.js"></script>\r\n' +
-        '    <script>require([\'main\']);</script>\r\n' +
+        '    <script src="/' + this.bowerDir + '/requirejs/require.js"></script>\r\n' +
+        '    <script>require([\'config\'], function(){require([\'main\']);});</script>\r\n' +
         '    <!-- endbuild -->\r\n'
       );
     }

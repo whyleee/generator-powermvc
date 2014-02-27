@@ -209,12 +209,9 @@ module.exports = function (grunt) {
                 options: {
                     baseUrl: '<%%= yeoman.jsDir %>',
                     mainConfigFile: '<%%= yeoman.jsDir %>/config.js',
-                    name: 'main',
+                    name: 'almond',
                     out: '<%%= yeoman.jsDir %>/min.js',
-                    paths: {
-                        'requireLib': '<%%= yeoman.bowerDirName %>/requirejs/require'
-                    },
-                    include: ['requireLib'],
+                    include: ['main'],
                     preserveLicenseComments: false
                 }
             }
