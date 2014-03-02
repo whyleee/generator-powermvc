@@ -203,8 +203,11 @@ module.exports = function (grunt) {
             }
         },
         bower: {
-            all: {
-                rjsConfig: '<%%= yeoman.jsDir %>/config.js'
+            require: {
+                rjsConfig: '<%%= yeoman.jsDir %>/config.js',
+                options: {
+                    baseUrl: '<%%= yeoman.jsDir %>'
+                }
             }
         },
         requirejs: {
@@ -270,6 +273,7 @@ module.exports = function (grunt) {
         concurrent: {
             build: [
                 'install:bower',
+                'bower:require',
                 'msbuild',
                 'compass:dist'
             ],
@@ -290,37 +294,37 @@ module.exports = function (grunt) {
     grunt.registerTask('install', 'install/restore npm and bower dependencies', function(cmd) {
         var exec = require('child_process').exec;
         var done = this.async();
-        exec(cmd + ' install', {cwd: '.'}, function(err, stdout, stderr) {
+        exec(cmd + ' install', {cwd: '.'}, function(err, stdout/*, stderr */) {
             console.log(stdout);
             done();
         });
     });
 
-    grunt.registerTask('serve', function (target) {
+    grunt.registerTask('serve', [
+        'open:server',
+        'concurrent:watch'
+    ]);
+
+    grunt.registerTask('build', function (target) {
         if (target === 'dist') {
-            return grunt.task.run(['build', 'open:server']);
+            return grunt.task.run([
+                'clean:dist',
+                'concurrent:build',
+                'processhtml',
+                'concurrent:min',
+                'cdnify',
+                'rev',
+                'usemin',
+                'htmlmin',
+                'copy:postdist',
+                'clean:postdist'
+            ]);
         }
 
         grunt.task.run([
-            'msbuild',
-            'open:server',
-            'concurrent:watch'
+            'concurrent:build'
         ]);
     });
-
-    grunt.registerTask('build', [
-        'clean:dist',
-        'concurrent:build',
-        'bower',
-        'processhtml',
-        'concurrent:min',
-        'cdnify',
-        'rev',
-        'usemin',
-        'htmlmin',
-        'copy:postdist',
-        'clean:postdist'
-    ]);
 
     grunt.registerTask('default', [
         'newer:jshint',

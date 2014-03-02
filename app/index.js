@@ -1,6 +1,7 @@
 'use strict';
 var util = require('util');
 var path = require('path');
+var fs = require('fs');
 var yeoman = require('yeoman-generator');
 var chalk = require('chalk');
 
@@ -85,11 +86,23 @@ var AspnetPowermvcGenerator = yeoman.generators.Base.extend({
   },
 
   app: function () {
+    // configs
     this.template('Gruntfile.js');
     this.template('_package.json', 'package.json');
     this.template('_bower.json', 'bower.json');
 
+    // js
+    this.copy('config.js', this.jsDir + '/config.js');
     this.copy('main.js', this.jsDir + '/main.js');
+
+    // css
+    var siteCssExists = fs.existsSync(this.cssDir + '/site.css');
+    if (siteCssExists) {
+      var siteCss = this.readFileAsString(this.cssDir + '/site.css');
+      this.write(this.sassDir + '/site.scss', siteCss);
+    } else {
+      this.copy('site.scss', this.sassDir + '/site.scss');
+    }
 
     var layoutHtml = this.readFileAsString('Views/Shared/_Layout.cshtml');
 
@@ -108,13 +121,13 @@ var AspnetPowermvcGenerator = yeoman.generators.Base.extend({
         '    <!-- build:cdn -->\r\n' +
         '    <!-- build:js /' + this.jsDir + '/min.js -->\r\n' +
         '    <script src="/' + this.bowerDir + '/requirejs/require.js"></script>\r\n' +
-        '    <script>require([\'config\'], function(){require([\'main\']);});</script>\r\n' +
+        '    <script>require([\'' + this.jsDir + '/config\'], function(){require([\'main\']);});</script>\r\n' +
         '    <!-- endbuild -->\r\n'
       );
     }
 
-    // remove js bundles
-    layoutHtml = layoutHtml.replace('    @Scripts.Render("~/bundles/jquery")\r\n', '');
+    // comment all bundle refs
+    layoutHtml = layoutHtml.replace(/(@\*\s*)?(@Scripts\.Render\(.+\)|@Styles\.Render\(.+\))(\s*\*@)?/g, '@\*$2\*@');
 
     // insert livereload ref
     if (layoutHtml.indexOf('//localhost:35729/livereload.js') == -1) {
