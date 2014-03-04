@@ -47,7 +47,7 @@ module.exports = function (grunt) {
                 tasks: ['jshint']
             },
             cs: {
-                files: ['**/*.cs'],
+                files: ['{,*/}*.cs', 'Controllers/*.cs', 'Models/*.cs'],
                 tasks: ['msbuild']
             },
             reload: {
@@ -61,7 +61,7 @@ module.exports = function (grunt) {
                     '<%%= yeoman.jsDir %>/{,*/}*.js',
                     '<%%= yeoman.imgDir %>/{,*/}*.{gif,jpeg,jpg,png,svg,webp}',
                     '*.config', 'App_Config/**/*.config',
-                    '**/*.cs'
+                    '{,*/}*.cs', 'Controllers/*.cs', 'Models/*.cs'
                 ]
             }
         },
