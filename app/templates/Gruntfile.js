@@ -87,14 +87,7 @@ module.exports = function (grunt) {
         // Empties files/dirs to start fresh
         clean: {
             dist: [
-                'Views/min',
-                '<%%= yeoman.cssDir %>/*.min.css',
-                '<%%= yeoman.jsDir %>/*.min.js',
                 'min'
-            ],
-            postdist: [
-                'Views/Shared/_Layout_processed.cshtml',
-                'Views/min/Shared/_Layout_processed.cshtml'
             ]
         },
 
@@ -102,16 +95,8 @@ module.exports = function (grunt) {
         processhtml: {
             dist: {
                 files: {
-                    'Views/Shared/_Layout_processed.cshtml': ['Views/Shared/_Layout.cshtml']
+                    'min/Views/Shared/_Layout.cshtml': ['Views/Shared/_Layout.cshtml']
                 }
-            }
-        },
-
-        // Copy files
-        copy: {
-            postdist: {
-                src: 'Views/min/Shared/_Layout_processed.cshtml',
-                dest: 'Views/min/Shared/_Layout.cshtml'
             }
         },
 
@@ -170,8 +155,10 @@ module.exports = function (grunt) {
                 files: [{
                     expand: true,
                     cwd: 'Views',
-                    src: '**/*.cshtml',
-                    dest: 'Views/min'
+                    src: ['**/*.cshtml', '!Shared/_Layout.cshtml'],
+                    dest: 'min/Views'
+                }, {
+                    'min/Views/Shared/_Layout.cshtml': 'min/Views/Shared/_Layout.cshtml'
                 }]
             }
         },
@@ -201,9 +188,8 @@ module.exports = function (grunt) {
                     keepSpecialComments: false
                 },
                 files: {
-                    '<%%= yeoman.cssDir %>/min.css': [
-                        '<%%= yeoman.cssDir %>/{,*/}*.css',
-                        '!<%%= yeoman.cssDir %>/{,*/}*.min.css',
+                    'min/<%%= yeoman.cssDir %>/min.css': [
+                        '<%%= yeoman.cssDir %>/{,*/}*.css'
                     ]
                 }
             }
@@ -211,7 +197,7 @@ module.exports = function (grunt) {
         uglify: {
             dist: {
                 files: {
-                    '<%%= yeoman.jsDir %>/min.amd.js': [
+                    'min/<%%= yeoman.jsDir %>/min.almond.js': [
                         '<%%= yeoman.bowerDir %>/almond/almond.js'
                     ]
                 }
@@ -231,7 +217,7 @@ module.exports = function (grunt) {
                     baseUrl: '<%%= yeoman.jsDir %>',
                     mainConfigFile: '<%%= yeoman.jsDir %>/config.js',
                     name: 'main',
-                    out: '<%%= yeoman.jsDir %>/min.js',
+                    out: 'min/<%%= yeoman.jsDir %>/min.js',
                     paths: {
                         'jquery': 'empty:'
                     },
@@ -243,8 +229,8 @@ module.exports = function (grunt) {
             dist: {
                 files: {
                     src: [
-                        '<%%= yeoman.cssDir %>/min.css',
-                        '<%%= yeoman.jsDir %>/min.js',
+                        'min/<%%= yeoman.cssDir %>/{,*/}*.css',
+                        'min/<%%= yeoman.jsDir %>/{,*/}*.js',
                         'min/<%%= yeoman.imgDir %>/{,*/}*.*'
                     ]
                 }
@@ -252,10 +238,10 @@ module.exports = function (grunt) {
         },
         usemin: {
             options: {
-                assetsDirs: ['', 'min']
+                assetsDirs: ['min']
             },
-            html: ['Views/Shared/_Layout_processed.cshtml'],
-            css: ['<%%= yeoman.cssDir %>/*.min.css']
+            html: ['min/Views/Shared/_Layout.cshtml'],
+            css: ['min/<%%= yeoman.cssDir %>/{,*/}*.css']
         },
         cdnify: {
             dist: {
@@ -263,8 +249,8 @@ module.exports = function (grunt) {
                     localFallback: true,
                     bowerDir: '<%%= yeoman.bowerDir %>',
                 },
-                html: ['Views/Shared/_Layout_processed.cshtml'],
-                almond: '<%%= yeoman.jsDir %>/min.amd.js',
+                html: ['min/Views/Shared/_Layout.cshtml'],
+                almond: '<%%= yeoman.jsDir %>/min.almond.js',
                 components: {
                     'jquery': {
                         localPath: '<%%= yeoman.bowerDir %>/jquery/dist/jquery.min.js',
@@ -334,9 +320,7 @@ module.exports = function (grunt) {
                 'cdnify',
                 'rev',
                 'usemin',
-                'htmlmin',
-                'copy:postdist',
-                'clean:postdist'
+                'htmlmin'
             ]);
         }
 
