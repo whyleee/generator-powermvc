@@ -89,7 +89,8 @@ module.exports = function (grunt) {
             dist: [
                 'Views/min',
                 '<%%= yeoman.cssDir %>/*.min.css',
-                '<%%= yeoman.jsDir %>/*.min.js'
+                '<%%= yeoman.jsDir %>/*.min.js',
+                'min'
             ],
             postdist: [
                 'Views/Shared/_Layout_processed.cshtml',
@@ -174,6 +175,26 @@ module.exports = function (grunt) {
                 }]
             }
         },
+        imagemin: {
+            dist: {
+                files: [{
+                    expand: true,
+                    cwd: '<%%= yeoman.imgDir %>',
+                    src: '{,*/}*.{gif,jpeg,jpg,png}',
+                    dest: 'min/<%%= yeoman.imgDir %>'
+                }]
+            }
+        },
+        svgmin: {
+            dist: {
+                files: [{
+                    expand: true,
+                    cwd: '<%%= yeoman.imgDir %>',
+                    src: '{,*/}*.svg',
+                    dest: 'min/<%%= yeoman.imgDir %>'
+                }]
+            }
+        },
         cssmin: {
             dist: {
                 options: {
@@ -190,12 +211,6 @@ module.exports = function (grunt) {
         uglify: {
             dist: {
                 files: {
-                    // '<%%= yeoman.jsDir %>/min.js': [
-                    //     '<%%= yeoman.jsDir %>/{,*/}*.js',
-                    //     '!<%%= yeoman.jsDir %>/{,*/}*.min.js',
-                    //     '!<%%= yeoman.jsDir %>/_references.js',
-                    //     '!<%%= yeoman.jsDir %>/jquery-*.js'
-                    // ]
                     '<%%= yeoman.jsDir %>/min.amd.js': [
                         '<%%= yeoman.bowerDir %>/almond/almond.js'
                     ]
@@ -229,16 +244,18 @@ module.exports = function (grunt) {
                 files: {
                     src: [
                         '<%%= yeoman.cssDir %>/min.css',
-                        '<%%= yeoman.jsDir %>/min.js'
+                        '<%%= yeoman.jsDir %>/min.js',
+                        'min/<%%= yeoman.imgDir %>/{,*/}*.*'
                     ]
                 }
             }
         },
         usemin: {
             options: {
-                assetsDirs: ['']
+                assetsDirs: ['', 'min']
             },
-            html: ['Views/Shared/_Layout_processed.cshtml']
+            html: ['Views/Shared/_Layout_processed.cshtml'],
+            css: ['<%%= yeoman.cssDir %>/*.min.css']
         },
         cdnify: {
             dist: {
@@ -281,6 +298,8 @@ module.exports = function (grunt) {
                 'requirejs',
                 'cssmin',
                 'uglify',
+                'imagemin',
+                'svgmin'
             ],
             watch: {
                 tasks: ['watch', 'compass:watch'],
