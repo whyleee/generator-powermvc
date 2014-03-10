@@ -17,6 +17,25 @@ var AspnetPowermvcGenerator = yeoman.generators.Base.extend({
     });
   },
 
+  _addedFiles: [],
+
+  _copy: function (from, to) {
+    to = to || from;
+    this._addedFiles.push(to);
+    this.copy(from, to);
+  },
+
+  _template: function (from, to) {
+    to = to || from;
+    this._addedFiles.push(to);
+    this.template(from, to);
+  },
+
+  _create: function (path, content) {
+    this._addedFiles.push(path);
+    this.write(path, content);
+  },
+
   askFor: function () {
     var done = this.async();
 
@@ -87,21 +106,21 @@ var AspnetPowermvcGenerator = yeoman.generators.Base.extend({
 
   app: function () {
     // configs
-    this.template('Gruntfile.js');
-    this.template('_package.json', 'package.json');
-    this.template('_bower.json', 'bower.json');
+    this._template('Gruntfile.js');
+    this._template('_package.json', 'package.json');
+    this._template('_bower.json', 'bower.json');
 
     // js
-    this.copy('config.js', this.jsDir + '/config.js');
-    this.copy('main.js', this.jsDir + '/main.js');
+    this._copy('config.js', this.jsDir + '/config.js');
+    this._copy('main.js', this.jsDir + '/main.js');
 
     // css
     var siteCssExists = fs.existsSync(this.cssDir + '/site.css');
     if (siteCssExists) {
       var siteCss = this.readFileAsString(this.cssDir + '/site.css');
-      this.write(this.sassDir + '/site.scss', siteCss);
+      this._create(this.sassDir + '/site.scss', siteCss);
     } else {
-      this.copy('site.scss', this.sassDir + '/site.scss');
+      this._copy('site.scss', this.sassDir + '/site.scss');
     }
 
     var layoutHtml = this.readFileAsString('Views/Shared/_Layout.cshtml');
@@ -142,9 +161,32 @@ var AspnetPowermvcGenerator = yeoman.generators.Base.extend({
   },
 
   projectfiles: function () {
-    this.copy('editorconfig', '.editorconfig');
-    this.copy('jshintrc', '.jshintrc');
-    this.template('bowerrc', '.bowerrc');
+    this._copy('editorconfig', '.editorconfig');
+    this._copy('jshintrc', '.jshintrc');
+    this._template('bowerrc', '.bowerrc');
+  },
+
+  csproj: function () {
+    if (this._addedFiles.length == 0) {
+      return;
+    }
+
+    var proj = this.readFileAsString(this.projName + '.csproj');
+    var contentElems = [];
+    var filesXml = '';
+
+    this._addedFiles.forEach(function (file) {
+      contentElems.push('    <Content Include="' + file.replace(/\//g, '\\') + '" />\r\n');
+    });
+
+    contentElems.forEach(function (elem) {
+      proj = proj.replace(elem, '');
+      filesXml += elem;
+    });
+
+    proj = proj.replace('  <ItemGroup>\r\n  </ItemGroup>\r\n', '');
+    proj = proj.replace('</ItemGroup>', '</ItemGroup>\r\n  <ItemGroup>\r\n' + filesXml + '  </ItemGroup>');
+    this.write(this.projName + '.csproj', proj);
   },
 
   install: function() {
