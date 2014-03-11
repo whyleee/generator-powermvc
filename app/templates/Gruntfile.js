@@ -189,7 +189,8 @@ module.exports = function (grunt) {
                 },
                 files: {
                     'min/<%%= yeoman.cssDir %>/min.css': [
-                        '<%%= yeoman.cssDir %>/{,*/}*.css'
+                        '<%%= yeoman.cssDir %>/{,*/}*.css',
+                        '!<%%= yeoman.cssDir %>/{,*/}*.min.css'
                     ]
                 }
             }
