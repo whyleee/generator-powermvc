@@ -276,7 +276,6 @@ module.exports = function (grunt) {
         // Run some tasks in parallel to speed up build process
         concurrent: {
             build: [
-                'install:bower',
                 'bower:require',
                 'msbuild',
                 'compass:dist'
@@ -315,6 +314,7 @@ module.exports = function (grunt) {
         if (target === 'dist') {
             return grunt.task.run([
                 'clean:dist',
+                'install:bower',
                 'concurrent:build',
                 'processhtml',
                 'concurrent:min',
@@ -326,6 +326,7 @@ module.exports = function (grunt) {
         }
 
         grunt.task.run([
+            'install:bower',
             'concurrent:build'
         ]);
     });
