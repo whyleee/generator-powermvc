@@ -50,6 +50,10 @@ module.exports = function (grunt) {
                 files: ['{,*/}*.cs', 'Controllers/*.cs', 'Models/*.cs'],
                 tasks: ['msbuild']
             },
+            bower: {
+                files: ['bower.json'],
+                tasks: ['install:bower', 'bower:require']
+            },
             reload: {
                 options: {
                     livereload: 35729
