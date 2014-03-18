@@ -118,6 +118,7 @@ var AspnetPowermvcGenerator = yeoman.generators.Base.extend({
     this._template('Gruntfile.js', 'Gruntfile.js', /*dev*/ true);
     this._template('_package.json', 'package.json', /*dev*/ true);
     this._template('_bower.json', 'bower.json', /*dev*/ true);
+    this._template('Yeoman.Deploy.targets', 'Properties/Yeoman/Yeoman.Deploy.targets', /*dev*/ true);
 
     // js
     this._copy('config.js', this.jsDir + '/config.js');
@@ -197,6 +198,16 @@ var AspnetPowermvcGenerator = yeoman.generators.Base.extend({
 
     proj = proj.replace('  <ItemGroup>\r\n  </ItemGroup>\r\n', '');
     proj = proj.replace('</ItemGroup>', '</ItemGroup>\r\n  <ItemGroup>\r\n' + filesXml + '  </ItemGroup>');
+
+    this._addedFiles.forEach(function (file) {
+      if (file.path.indexOf('.targets') != -1) {
+        var importEl = '<Import Project="' + file.path.replace(/\//g, '\\') + '" />';
+        if (proj.indexOf(importEl) == -1) {
+          proj = proj.replace('</ProjectExtensions>', '</ProjectExtensions>\r\n  ' + importEl);
+        }
+      }
+    });
+
     this.write(this.projName + '.csproj', proj);
   },
 

@@ -1,0 +1,63 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <!-- Fix for ERROR_APPPOOL_VERSION_MISMATCH error during deploy of .NET 4.5 apps -->
+    <IgnoreDeployManagedRuntimeVersion>True</IgnoreDeployManagedRuntimeVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <!-- Hook into msbuild pipeline before creating a deployment package -->
+    <CopyAllFilesToSingleFolderForPackageDependsOn>
+      RunGrunt;
+      DefineCustomWebDeployFiles;
+      CustomWebDeployFiles;
+      $(CopyAllFilesToSingleFolderForPackageDependsOn);
+    </CopyAllFilesToSingleFolderForPackageDependsOn>
+    <!-- Hook into msbuild pipeline before publishing the app using WMSVC -->
+    <CopyAllFilesToSingleFolderForMsdeployDependsOn>
+      RunGrunt;
+      DefineCustomWebDeployFiles;
+      CustomWebDeployFiles;
+      $(CopyAllFilesToSingleFolderForMsdeployDependsOn);
+    </CopyAllFilesToSingleFolderForMsdeployDependsOn>
+  </PropertyGroup>
+  <!-- Restore npm packages and run grunt build -->
+  <Target Name="RunGrunt">
+    <Exec Command=".bin\npm install" />
+    <Exec Command=".bin\grunt build:dist" />
+  </Target>
+  <!-- Include additional files to the deployment package -->
+  <Target Name="DefineCustomWebDeployFiles">
+    <ItemGroup>
+      <!-- By default, all minified html/images/css/js will be copied to /min dir -->
+      <!-- Copy all minified stuff to the web root in the deployment package -->
+      <CustomFilesToInclude Include="min\**\*">
+        <Dir>.</Dir>
+      </CustomFilesToInclude>
+      <!-- Add other files here -->
+    </ItemGroup>
+  </Target>
+  <!-- Internal target to include all additional files defined in the previous target to the deployment package -->
+  <Target Name="CustomWebDeployFiles">
+    <ItemGroup>
+      <FilesForPackagingFromProject Include="@(CustomFilesToInclude)">
+        <DestinationRelativePath>%(CustomFilesToInclude.Dir)\%(RecursiveDir)%(Filename)%(Extension)</DestinationRelativePath>
+      </FilesForPackagingFromProject>
+    </ItemGroup>
+  </Target>
+  <!-- Exclude project items from the deployment package -->
+  <ItemGroup>
+    <!-- Exclude original html/images/css/js to be replaced by their minified versions -->
+    <ExcludeFromPackageFiles Include="<%= cssDir.replace(/\//g, '\\') %>\**">
+      <FromTarget>Project</FromTarget>
+    </ExcludeFromPackageFiles>
+    <ExcludeFromPackageFiles Include="<%= jsDir.replace(/\//g, '\\') %>\**">
+      <FromTarget>Project</FromTarget>
+    </ExcludeFromPackageFiles>
+    <ExcludeFromPackageFiles Include="<%= imgDir.replace(/\//g, '\\') %>\**">
+      <FromTarget>Project</FromTarget>
+    </ExcludeFromPackageFiles>
+    <ExcludeFromPackageFiles Include="Views\**\*.cshtml">
+      <FromTarget>Project</FromTarget>
+    </ExcludeFromPackageFiles>
+  </ItemGroup>
+</Project>

@@ -1,6 +1,6 @@
 {
   "name": "generator-aspnet-powermvc",
-  "version": "0.1.0",
+  "version": "0.4.0",
   "description": "Powerfull front-end features for ASP.NET MVC apps",
   "license": "MIT",
   "main": "app/index.js",
