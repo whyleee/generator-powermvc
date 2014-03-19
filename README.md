@@ -10,6 +10,14 @@ integrated, created specifically for ASP.NET MVC apps and integrated with Visual
 MsBuild/MsDeploy.
 
 
+Installation
+------------
+
+PoverMvc generator is available in [NuGet](https://www.nuget.org/packages/Yeoman.PowerMvc/):
+
+    PS> Install-Package Yeoman.PowerMvc
+
+
 Usage
 -----
 
