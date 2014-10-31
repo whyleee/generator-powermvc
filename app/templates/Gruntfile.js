@@ -4,339 +4,311 @@
 // # Globbing
 // for performance reasons we're only matching one level down:
 // 'test/spec/{,*/}*.js'
-// use this if you want to recursively match all subfolders:
+// If you want to recursively match all subfolders, use:
 // 'test/spec/**/*.js'
 
 module.exports = function (grunt) {
 
-    // Load grunt tasks automatically
-    require('load-grunt-tasks')(grunt);
+  // Time how long tasks take. Can help when optimizing build times
+  require('time-grunt')(grunt);
 
-    // Time how long tasks take. Can help when optimizing build times
-    require('time-grunt')(grunt);
+  // Load grunt tasks automatically
+  require('load-grunt-tasks')(grunt);
 
-    var path = require('path');
+  // Configurable paths
+  var config = {
+    proj: '<%= projName %>',
+    host: '<%= host %>',
+    port: <%= port %>,
+    cssDir: '<%= cssDir %>',
+    sassDir: '<%= sassDir %>',
+    jsDir: '<%= jsDir %>',
+    jsLibDir: '<%= jsLibDir %>',
+    bowerDir: '<%= bowerDir %>',
+    bowerDirName: require('path').basename('<%= bowerDir %>'),
+    imgDir: '<%= imgDir %>',
+    fontsDir: '<%= fontsDir %>',
+    vsVer: '<%= vsVer %>'
+  };
 
-    // Define the configuration for all the tasks
-    grunt.initConfig({
+  // Define the configuration for all the tasks
+  grunt.initConfig({
 
-        // Project settings
-        yeoman: {
-            // Configurable paths
-            proj: '<%= projName %>',
-            host: '<%= host %>',
-            port: <%= port %>,
-            cssDir: '<%= cssDir %>',
-            sassDir: '<%= sassDir %>',
-            jsDir: '<%= jsDir %>',
-            jsLibDir: '<%= jsLibDir %>',
-            bowerDir: '<%= bowerDir %>',
-            bowerDirName: path.basename('<%= bowerDir %>'),
-            imgDir: '<%= imgDir %>',
-            fontsDir: '<%= fontsDir %>',
-            vsVer: '<%= vsVer %>'
-        },
+    // Project settings
+    config: config,
 
-        // Watches files for changes and runs tasks based on the changed files
-        watch: {
-            options: {
-                nospawn: true
-            },
-            js: {
-                files: ['<%%= yeoman.jsDir %>/{,*/}*.js'],
-                tasks: ['jshint']
-            },
-            cs: {
-                files: ['{,*/}*.cs', 'Controllers/*.cs', 'Models/*.cs'],
-                tasks: ['msbuild']
-            },
-            bower: {
-                files: ['bower.json'],
-                tasks: ['install:bower', 'bower:require']
-            },
-            reload: {
-                options: {
-                    livereload: 35729
-                },
-                files: [
-                    'Gruntfile.js',
-                    'Views/**/*.cshtml',
-                    '<%%= yeoman.cssDir %>/{,*/}*.css',
-                    '<%%= yeoman.jsDir %>/{,*/}*.js',
-                    '<%%= yeoman.imgDir %>/{,*/}*.{gif,jpeg,jpg,png,svg,webp}',
-                    '*.config', 'App_Config/**/*.config',
-                    '{,*/}*.cs', 'Controllers/*.cs', 'Models/*.cs'
-                ]
-            }
+    // Watches files for changes and runs tasks based on the changed files
+    watch: {
+      options: {
+        nospawn: true
+      },
+      js: {
+        files: ['<%%= config.jsDir %>/{,*/}*.js'],
+        tasks: ['jshint']
+      },
+      bower: {
+        files: ['bower.json'],
+        tasks: ['install:bower', 'bower:require']
+      },
+      reload: {
+        options: {
+          livereload: 35729
         },
+        files: [
+            'Gruntfile.js',
+            'Views/**/*.cshtml',
+            '<%%= config.cssDir %>/{,*/}*.css',
+            '<%%= config.jsDir %>/{,*/}*.js',
+            '<%%= config.imgDir %>/{,*/}*.{gif,jpeg,jpg,png,svg,webp}',
+            '*.config', 'App_Config/**/*.config'
+        ]
+      }
+    },
 
-        // Rebuilds the project
-        msbuild: {
-            dev: {
-                src: ['<%%= yeoman.proj %>.csproj'],
-                options: {
-                    projectConfiguration: 'Debug',
-                    targets: ['Build'],
-                    stdout: true,
-                    maxCpuCount: 8,
-                    buildParameters: {
-                        WarningLevel: 2,
-                        VisualStudioVersion: '<%%= yeoman.vsVer %>'
-                    },
-                    verbosity: 'quiet'
-                }
-            }
-        },
-
-        // Empties files/dirs to start fresh
-        clean: {
-            dist: [
-                'min'
-            ]
-        },
-
-        // Process HTML files
-        processhtml: {
-            dist: {
-                files: {
-                    'min/Views/Shared/_Layout.cshtml': ['Views/Shared/_Layout.cshtml']
-                }
-            }
-        },
-
-        // Make sure code styles are up to par and there are no obvious mistakes
-        jshint: {
-            options: {
-                jshintrc: '.jshintrc',
-                reporter: require('jshint-stylish')
-            },
-            all: [
-                'Gruntfile.js',
-                '<%%= yeoman.jsDir %>/*.js',
-                '!<%%= yeoman.jsLibDir %>/*'
-            ]
-        },
-
-        // Compiles Sass to CSS and generates necessary files if requested
-        compass: {
-            options: {
-                sassDir: '<%%= yeoman.sassDir %>',
-                cssDir: '<%%= yeoman.cssDir %>',
-                javascriptsDir: '<%%= yeoman.jsDir %>',
-                imagesDir: '<%%= yeoman.imgDir %>',
-                fontsDir: '<%%= yeoman.fontsDir %>',
-                httpStylesheetsPath: '/<%%= yeoman.cssDir %>',
-                httpJavascriptsPath: '/<%%= yeoman.jsDir %>',
-                httpImagesPath: '/<%%= yeoman.imgDir %>',
-                httpFontsPath: '/<%%= yeoman.fontsDir %>',
-                relativeAssets: false,
-                assetCacheBuster: false
-            },
-            dist: {
-                options: {}
-            },
-            watch: {
-                options: {
-                    debugInfo: true,
-                    watch: true
-                }
-            }
-        },
-
-        // The following *-min tasks produce minified files in the dist folder
-        htmlmin: {
-            dist: {
-                options: {
-                    collapseBooleanAttributes: true,
-                    collapseWhitespace: true,
-                    removeAttributeQuotes: true,
-                    removeCommentsFromCDATA: true,
-                    removeEmptyAttributes: true,
-                    removeOptionalTags: true,
-                    removeRedundantAttributes: true,
-                    useShortDoctype: true
-                },
-                files: [{
-                    expand: true,
-                    cwd: 'Views',
-                    src: ['**/*.cshtml', '!Shared/_Layout.cshtml'],
-                    dest: 'min/Views'
-                }, {
-                    'min/Views/Shared/_Layout.cshtml': 'min/Views/Shared/_Layout.cshtml'
-                }]
-            }
-        },
-        imagemin: {
-            dist: {
-                files: [{
-                    expand: true,
-                    cwd: '<%%= yeoman.imgDir %>',
-                    src: '{,*/}*.{gif,jpeg,jpg,png}',
-                    dest: 'min/<%%= yeoman.imgDir %>'
-                }]
-            }
-        },
-        svgmin: {
-            dist: {
-                files: [{
-                    expand: true,
-                    cwd: '<%%= yeoman.imgDir %>',
-                    src: '{,*/}*.svg',
-                    dest: 'min/<%%= yeoman.imgDir %>'
-                }]
-            }
-        },
-        cssmin: {
-            dist: {
-                options: {
-                    keepSpecialComments: false
-                },
-                files: {
-                    'min/<%%= yeoman.cssDir %>/min.css': [
-                        '<%%= yeoman.cssDir %>/{,*/}*.css',
-                        '!<%%= yeoman.cssDir %>/{,*/}*.min.css'
-                    ]
-                }
-            }
-        },
-        uglify: {
-            dist: {
-                files: {
-                    'min/<%%= yeoman.jsDir %>/min.almond.js': [
-                        '<%%= yeoman.bowerDir %>/almond/almond.js'
-                    ]
-                }
-            }
-        },
-        bower: {
-            require: {
-                rjsConfig: '<%%= yeoman.jsDir %>/config.js',
-                options: {
-                    baseUrl: '<%%= yeoman.jsDir %>'
-                }
-            }
-        },
-        requirejs: {
-            compile: {
-                options: {
-                    baseUrl: '<%%= yeoman.jsDir %>',
-                    mainConfigFile: '<%%= yeoman.jsDir %>/config.js',
-                    name: 'main',
-                    out: 'min/<%%= yeoman.jsDir %>/min.js',
-                    paths: {
-                        'jquery': 'empty:'
-                    },
-                    preserveLicenseComments: false
-                }
-            }
-        },
-        rev: {
-            dist: {
-                files: {
-                    src: [
-                        'min/<%%= yeoman.cssDir %>/{,*/}*.css',
-                        'min/<%%= yeoman.jsDir %>/{,*/}*.js',
-                        'min/<%%= yeoman.imgDir %>/{,*/}*.*'
-                    ]
-                }
-            }
-        },
-        usemin: {
-            options: {
-                assetsDirs: ['min']
-            },
-            html: ['min/Views/Shared/_Layout.cshtml'],
-            css: ['min/<%%= yeoman.cssDir %>/{,*/}*.css']
-        },
-        cdnify: {
-            dist: {
-                options: {
-                    localFallback: true,
-                    bowerDir: '<%%= yeoman.bowerDir %>',
-                },
-                html: ['min/Views/Shared/_Layout.cshtml'],
-                almond: '<%%= yeoman.jsDir %>/min.almond.js',
-                components: {
-                    'jquery': {
-                        localPath: '<%%= yeoman.bowerDir %>/jquery/dist/jquery.min.js',
-                        success: 'window.jQuery'
-                    }
-                }
-            }
-        },
-
-        install: {
-            bower: {}
-        },
-
-        // Open in browser
-        open: {
-            server: {
-                path: 'http://<%%= yeoman.host %>:<%%= yeoman.port %>',
-                app: 'chrome'
-            }
-        },
-
-        // Run some tasks in parallel to speed up build process
-        concurrent: {
-            build: [
-                'bower:require',
-                'msbuild',
-                'compass:dist'
-            ],
-            min: [
-                'requirejs',
-                'cssmin',
-                'uglify',
-                'imagemin',
-                'svgmin'
-            ],
-            watch: {
-                tasks: ['watch', 'compass:watch'],
-                options: {
-                    logConcurrentOutput: true
-                }
-            }
+    // Rebuilds the project
+    msbuild: {
+      dev: {
+        src: ['<%%= config.proj %>.csproj'],
+        options: {
+          projectConfiguration: 'Debug',
+          targets: ['Build'],
+          stdout: true,
+          maxCpuCount: 8,
+          buildParameters: {
+            WarningLevel: 2,
+            VisualStudioVersion: '<%%= config.vsVer %>'
+          },
+          verbosity: 'quiet'
         }
-    });
+      }
+    },
 
-    grunt.registerTask('install', 'install/restore npm and bower dependencies', function(cmd) {
-        var exec = require('child_process').exec;
-        var done = this.async();
-        exec(cmd + ' install', {cwd: '.'}, function(err, stdout/*, stderr */) {
-            console.log(stdout);
-            done();
-        });
-    });
+    // Empties files/dirs to start fresh
+    clean: {
+      dist: [
+          'min'
+      ]
+    },
 
-    grunt.registerTask('serve', [
-        'open:server',
-        'concurrent:watch'
-    ]);
-
-    grunt.registerTask('build', function (target) {
-        if (target === 'dist') {
-            return grunt.task.run([
-                'clean:dist',
-                'install:bower',
-                'concurrent:build',
-                'processhtml',
-                'concurrent:min',
-                'cdnify',
-                'rev',
-                'usemin',
-                'htmlmin'
-            ]);
+    // Process HTML files
+    processhtml: {
+      dist: {
+        files: {
+          'min/Views/Shared/_Layout.cshtml': ['Views/Shared/_Layout.cshtml']
         }
+      }
+    },
 
-        grunt.task.run([
-            'install:bower',
-            'concurrent:build'
-        ]);
+    // Make sure code styles are up to par and there are no obvious mistakes
+    jshint: {
+      options: {
+        jshintrc: '.jshintrc',
+        reporter: require('jshint-stylish')
+      },
+      all: [
+          'Gruntfile.js',
+          '<%%= config.jsDir %>/*.js',
+          '!<%%= config.jsLibDir %>/*'
+      ]
+    },
+
+    // Compiles Sass to CSS and generates necessary files if requested
+    compass: {
+      options: {
+        sassDir: '<%%= config.sassDir %>',
+        cssDir: '<%%= config.cssDir %>',
+        javascriptsDir: '<%%= config.jsDir %>',
+        imagesDir: '<%%= config.imgDir %>',
+        fontsDir: '<%%= config.fontsDir %>',
+        httpStylesheetsPath: '/<%%= config.cssDir %>',
+        httpJavascriptsPath: '/<%%= config.jsDir %>',
+        httpImagesPath: '/<%%= config.imgDir %>',
+        httpFontsPath: '/<%%= config.fontsDir %>',
+        relativeAssets: false,
+        assetCacheBuster: false
+      },
+      dist: {
+        options: {}
+      },
+      watch: {
+        options: {
+          debugInfo: true,
+          watch: true
+        }
+      }
+    },
+
+    // The following *-min tasks produce minified files in the dist folder
+    imagemin: {
+      dist: {
+        files: [{
+          expand: true,
+          cwd: '<%%= config.imgDir %>',
+          src: '{,*/}*.{gif,jpeg,jpg,png}',
+          dest: 'min/<%%= config.imgDir %>'
+        }]
+      }
+    },
+    svgmin: {
+      dist: {
+        files: [{
+          expand: true,
+          cwd: '<%%= config.imgDir %>',
+          src: '{,*/}*.svg',
+          dest: 'min/<%%= config.imgDir %>'
+        }]
+      }
+    },
+    cssmin: {
+      dist: {
+        options: {
+          keepSpecialComments: 0
+        },
+        files: {
+          'min/<%%= config.cssDir %>/min.css': [
+              '<%%= config.cssDir %>/{,*/}*.css',
+              '!<%%= config.cssDir %>/{,*/}*.min.css'
+          ]
+        }
+      }
+    },
+    uglify: {
+      dist: {
+        files: {
+          'min/<%%= config.jsDir %>/min.almond.js': [
+              '<%%= config.bowerDir %>/almond/almond.js'
+          ]
+        }
+      }
+    },
+    bower: {
+      require: {
+        rjsConfig: '<%%= config.jsDir %>/config.js',
+        options: {
+          baseUrl: '<%%= config.jsDir %>'
+        }
+      }
+    },
+    requirejs: {
+      compile: {
+        options: {
+          baseUrl: '<%%= config.jsDir %>',
+          mainConfigFile: '<%%= config.jsDir %>/config.js',
+          name: 'main',
+          out: 'min/<%%= config.jsDir %>/min.js',
+          paths: {
+            'jquery': 'empty:'
+          },
+          preserveLicenseComments: false
+        }
+      }
+    },
+    rev: {
+      dist: {
+        files: {
+          src: [
+              'min/<%%= config.cssDir %>/{,*/}*.css',
+              'min/<%%= config.jsDir %>/{,*/}*.js',
+              'min/<%%= config.imgDir %>/{,*/}*.*'
+          ]
+        }
+      }
+    },
+    usemin: {
+      options: {
+        assetsDirs: ['min']
+      },
+      html: ['min/Views/Shared/_Layout.cshtml'],
+      css: ['min/<%%= config.cssDir %>/{,*/}*.css']
+    },
+    cdnify: {
+      dist: {
+        options: {
+          localFallback: true,
+          bowerDir: '<%%= config.bowerDir %>',
+        },
+        html: ['min/Views/Shared/_Layout.cshtml'],
+        almond: '<%%= config.jsDir %>/min.almond.js',
+        components: {
+          'jquery': {
+            localPath: '<%%= config.bowerDir %>/jquery/dist/jquery.min.js',
+            success: 'window.jQuery'
+          }
+        }
+      }
+    },
+
+    install: {
+      bower: {}
+    },
+
+    // Open in browser
+    open: {
+      server: {
+        path: 'http://<%%= config.host %>:<%%= config.port %>',
+        app: 'chrome'
+      }
+    },
+
+    // Run some tasks in parallel to speed up build process
+    concurrent: {
+      build: [
+          'bower:require',
+          'msbuild',
+          'compass:dist'
+      ],
+      min: [
+          'requirejs',
+          'cssmin',
+          'uglify',
+          'imagemin',
+          'svgmin'
+      ],
+      watch: {
+        tasks: ['watch', 'compass:watch'],
+        options: {
+          logConcurrentOutput: true
+        }
+      }
+    }
+  });
+
+  grunt.registerTask('install', 'install/restore npm and bower dependencies', function(cmd) {
+    var exec = require('child_process').exec;
+    var done = this.async();
+    exec(cmd + ' install', {cwd: '.'}, function(err, stdout/*, stderr */) {
+      console.log(stdout);
+      done();
     });
+  });
 
-    grunt.registerTask('default', [
-        'newer:jshint',
-        'build'
+  grunt.registerTask('serve', [
+      'open:server',
+      'concurrent:watch'
+  ]);
+
+  grunt.registerTask('build', function (target) {
+    if (target === 'dist') {
+      return grunt.task.run([
+          'clean:dist',
+          'install:bower',
+          'concurrent:build',
+          'processhtml',
+          'concurrent:min',
+          'cdnify',
+          'rev',
+          'usemin'
+      ]);
+    }
+
+    grunt.task.run([
+        'install:bower',
+        'concurrent:build'
     ]);
+  });
+
+  grunt.registerTask('default', [
+      'newer:jshint',
+      'build'
+  ]);
 };
