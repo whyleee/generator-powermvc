@@ -50,6 +50,13 @@ module.exports = function (grunt) {
         files: ['bower.json'],
         tasks: ['install:bower', 'bower:require']
       },
+      sass: {
+        files: ['<%%= config.sassDir %>/{,*/}*.{scss,sass}'],
+        tasks: ['sass', 'autoprefixer'],
+        options: {
+          livereload: true
+        }
+      },
       reload: {
         options: {
           livereload: 35729
@@ -113,28 +120,34 @@ module.exports = function (grunt) {
     },
 
     // Compiles Sass to CSS and generates necessary files if requested
-    compass: {
+    sass: {
       options: {
-        sassDir: '<%%= config.sassDir %>',
-        cssDir: '<%%= config.cssDir %>',
-        javascriptsDir: '<%%= config.jsDir %>',
-        imagesDir: '<%%= config.imgDir %>',
-        fontsDir: '<%%= config.fontsDir %>',
-        httpStylesheetsPath: '/<%%= config.cssDir %>',
-        httpJavascriptsPath: '/<%%= config.jsDir %>',
-        httpImagesPath: '/<%%= config.imgDir %>',
-        httpFontsPath: '/<%%= config.fontsDir %>',
-        relativeAssets: false,
-        assetCacheBuster: false
+        sourceMap: true,
+        includePaths: ['<%%= config.bowerDir %>']
       },
       dist: {
-        options: {}
+        files: [{
+          expand: true,
+          cwd: '<%%= config.sassDir %>',
+          src: ['*.{scss,sass}'],
+          dest: '<%%= config.cssDir %>',
+          ext: '.css'
+        }]
+      }
+    },
+
+    // Add vendor prefixed styles
+    autoprefixer: {
+      options: {
+        browsers: ['> 1%', 'last 2 versions', 'Firefox ESR', 'Opera 12.1']
       },
-      watch: {
-        options: {
-          debugInfo: true,
-          watch: true
-        }
+      dist: {
+        files: [{
+          expand: true,
+          cwd: '<%%= config.cssDir %>',
+          src: '{,*/}*.css',
+          dest: '<%%= config.cssDir %>'
+        }]
       }
     },
 
@@ -255,7 +268,7 @@ module.exports = function (grunt) {
       build: [
           'bower:require',
           'msbuild',
-          'compass:dist'
+          'sass'
       ],
       min: [
           'requirejs',
@@ -263,13 +276,7 @@ module.exports = function (grunt) {
           'uglify',
           'imagemin',
           'svgmin'
-      ],
-      watch: {
-        tasks: ['watch', 'compass:watch'],
-        options: {
-          logConcurrentOutput: true
-        }
-      }
+      ]
     }
   });
 
@@ -284,7 +291,7 @@ module.exports = function (grunt) {
 
   grunt.registerTask('serve', [
       'open:server',
-      'concurrent:watch'
+      'watch'
   ]);
 
   grunt.registerTask('build', function (target) {
@@ -294,6 +301,7 @@ module.exports = function (grunt) {
           'install:bower',
           'concurrent:build',
           'processhtml',
+          'autoprefixer',
           'concurrent:min',
           'cdnify',
           'rev',
@@ -303,7 +311,8 @@ module.exports = function (grunt) {
 
     grunt.task.run([
         'install:bower',
-        'concurrent:build'
+        'concurrent:build',
+        'autoprefixer'
     ]);
   });
 
