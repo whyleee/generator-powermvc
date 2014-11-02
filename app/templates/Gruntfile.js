@@ -120,15 +120,6 @@ module.exports = function (grunt) {
       ]
     },
 
-    // Process HTML files
-    processhtml: {
-      dist: {
-        files: {
-          'min/Views/Shared/_Layout.cshtml': ['Views/Shared/_Layout.cshtml']
-        }
-      }
-    },
-
     // Make sure code styles are up to par and there are no obvious mistakes
     jshint: {
       options: {
@@ -171,6 +162,14 @@ module.exports = function (grunt) {
           src: '{,*/}*.css',
           dest: '<%%= config.cssDir %>'
         }]
+      }
+    },
+
+    // Copy files to places other tasks can use
+    copy: {
+      dist: {
+        src: 'Views/Shared/_Layout.cshtml',
+        dest: 'min/'
       }
     },
 
@@ -334,9 +333,9 @@ module.exports = function (grunt) {
     if (target === 'dist') {
       return grunt.task.run([
           'clean:dist',
+          'copy:dist',
           'install:bower',
           'concurrent:build',
-          'processhtml',
           'autoprefixer',
           'concurrent:min',
           'cdnify',
