@@ -1,58 +1,34 @@
 'use strict';
+
 var util = require('util');
 var path = require('path');
 var fs = require('fs');
 var yeoman = require('yeoman-generator');
 var chalk = require('chalk');
 
+module.exports = yeoman.generators.Base.extend({
+  constructor: function () {
+    yeoman.generators.Base.apply(this, arguments);
 
-var AspnetPowermvcGenerator = yeoman.generators.Base.extend({
-  init: function () {
-    this.pkg = yeoman.file.readJSON(path.join(__dirname, '../package.json'));
-
-    this.on('end', function () {
-      if (!this.options['skip-install']) {
-        this.npmInstall();
-      }
-    });
-  },
-
-  _addedFiles: [],
-
-  _copy: function (from, to, dev) {
-    to = to || from;
-    this._addedFiles.push({
-      path: to,
-      dev: Boolean(dev)
-    });
-    this.copy(from, to);
-  },
-
-  _template: function (from, to, dev) {
-    to = to || from;
-    this._addedFiles.push({
-      path: to,
-      dev: Boolean(dev)
-    });
-    this.template(from, to);
-  },
-
-  _create: function (path, content, dev) {
-    this._addedFiles.push({
-      path: path,
-      dev: Boolean(dev)
-    });
-    this.write(path, content);
+    this.pkg = require('../package.json');
   },
 
   askFor: function () {
     var done = this.async();
 
-    // have Yeoman greet the user
-    console.log(this.yeoman);
+    // welcome message
+    if (!this.options['skip-welcome-message']) {
+      this.log(require('yosay')());
+      this.log(chalk.magenta(
+        'Out of the box I include Sass, jQuery, Require.js and a ' +
+        'Gruntfile.js to build your app.'
+      ));
+    }
 
-    // description of the generator
-    console.log(chalk.magenta('I\'m going to show you the power of Grunt, Bower and Compass. Prepare yourself!'));
+    var nodeIncluded = function (answers) {
+      return answers && answers.features &&
+        answers.features.indexOf('includeNode') !== -1;
+    };
 
     var prompts = [{
       name: 'host',
@@ -61,7 +37,7 @@ var AspnetPowermvcGenerator = yeoman.generators.Base.extend({
     }, {
       name: 'port',
       message: 'What port would you like to use?',
-      default: '9000'
+      default: '9001'
     }, {
       name: 'cssDir',
       message: 'Path to css files?',
@@ -94,32 +70,70 @@ var AspnetPowermvcGenerator = yeoman.generators.Base.extend({
       name: 'vsVer',
       message: 'Your Visual Studio version?',
       default: '12.0'
+    }, {
+      type: 'checkbox',
+      name: 'features',
+      message: 'What more would you like?',
+      choices: [{
+        name: 'Node.js server (to work with front-end without IIS)',
+        value: 'includeNode',
+        checked: false
+      }]
+    }, {
+      when: nodeIncluded,
+      name: 'nodeStartPath',
+      message: 'Start path for Node.js server?',
+      default: '/html/index.html'
     }];
 
-    this.prompt(prompts, function (props) {
+    this.prompt(prompts, function (answers) {
+      var features = answers.features;
+
+      function hasFeature(feat) {
+        return features && features.indexOf(feat) !== -1;
+      }
+
       this.projName = path.basename(process.cwd());
-      this.host = props.host;
-      this.port = props.port;
-      this.cssDir = props.cssDir;
-      this.sassDir = props.sassDir;
-      this.jsDir = props.jsDir;
-      this.jsLibDir = props.jsLibDir;
-      this.bowerDir = props.bowerDir;
-      this.imgDir = props.imgDir;
-      this.fontsDir = props.fontsDir;
-      this.vsVer = props.vsVer;
+      this.host = answers.host;
+      this.port = answers.port;
+      this.cssDir = answers.cssDir;
+      this.sassDir = answers.sassDir;
+      this.jsDir = answers.jsDir;
+      this.jsLibDir = answers.jsLibDir;
+      this.bowerDir = answers.bowerDir;
+      this.imgDir = answers.imgDir;
+      this.fontsDir = answers.fontsDir;
+      this.vsVer = answers.vsVer;
+
+      this.includeNode = hasFeature('includeNode');
+
+      if (this.includeNode) {
+        this.nodeStartPath = answers.nodeStartPath;
+
+        if (!this.nodeStartPath.indexOf('/') == 0) {
+          this.nodeStartPath = '/' + this.nodeStartPath;
+        }
+      }
 
       done();
     }.bind(this));
   },
 
-  app: function () {
-    // configs
-    this._template('Gruntfile.js', 'Gruntfile.js', /*dev*/ true);
-    this._template('_package.json', 'package.json', /*dev*/ true);
-    this._template('_bower.json', 'bower.json', /*dev*/ true);
-    this._template('Yeoman.Deploy.targets', 'Properties/Yeoman/Yeoman.Deploy.targets', /*dev*/ true);
+  projectfiles: function () {
 
+  },
+
+  configs: function() {
+    this._copy('editorconfig', '.editorconfig', /*dev*/ true);
+    this._copy('jshintrc', '.jshintrc', /*dev*/ true);
+    this._template('bowerrc', '.bowerrc', /*dev*/ true);
+    this._template('_bower.json', 'bower.json', /*dev*/ true);
+    this._template('_package.json', 'package.json', /*dev*/ true);
+    this._template('Gruntfile.js', 'Gruntfile.js', /*dev*/ true);
+    this._template('Yeoman.Deploy.targets', 'Properties/Yeoman/Yeoman.Deploy.targets', /*dev*/ true);
+  },
+
+  app: function () {
     // js
     this._copy('config.js', this.jsDir + '/config.js');
     this._copy('main.js', this.jsDir + '/main.js');
@@ -132,12 +146,6 @@ var AspnetPowermvcGenerator = yeoman.generators.Base.extend({
     } else {
       this._copy('site.scss', this.sassDir + '/site.scss');
     }
-  },
-
-  projectfiles: function () {
-    this._copy('editorconfig', '.editorconfig', /*dev*/ true);
-    this._copy('jshintrc', '.jshintrc', /*dev*/ true);
-    this._template('bowerrc', '.bowerrc', /*dev*/ true);
   },
 
   refs: function() {
@@ -211,18 +219,44 @@ var AspnetPowermvcGenerator = yeoman.generators.Base.extend({
     this.write(this.projName + '.csproj', proj);
   },
 
-  install: function() {
-    if (this.options['skip-install']) {
-      return;
-    }
-
-    var done = this.async();
-    this.installDependencies({
-      skipMessage: this.options['skip-install-message'],
-      skipInstall: this.options['skip-install'],
-      callback: done
+  install: function () {
+    this.on('end', function () {
+      if (!this.options['skip-install']) {
+        this.installDependencies({
+          skipMessage: this.options['skip-install-message'],
+          skipInstall: this.options['skip-install']
+        });
+      }
     });
+  },
+
+  // helpers
+
+  _addedFiles: [],
+
+  _copy: function (from, to, dev) {
+    to = to || from;
+    this._addedFiles.push({
+      path: to,
+      dev: Boolean(dev)
+    });
+    this.copy(from, to);
+  },
+
+  _template: function (from, to, dev) {
+    to = to || from;
+    this._addedFiles.push({
+      path: to,
+      dev: Boolean(dev)
+    });
+    this.template(from, to);
+  },
+
+  _create: function (path, content, dev) {
+    this._addedFiles.push({
+      path: path,
+      dev: Boolean(dev)
+    });
+    this.write(path, content);
   }
 });
-
-module.exports = AspnetPowermvcGenerator;

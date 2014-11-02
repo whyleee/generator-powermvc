@@ -28,7 +28,10 @@ module.exports = function (grunt) {
     bowerDirName: require('path').basename('<%= bowerDir %>'),
     imgDir: '<%= imgDir %>',
     fontsDir: '<%= fontsDir %>',
-    vsVer: '<%= vsVer %>'
+    vsVer: '<%= vsVer %>'<% if (includeNode) { %>,
+    nodeHost: 'localhost',
+    nodePort: 9000,
+    nodeStartPath: '<%= nodeStartPath %>'<% } %>
   };
 
   // Define the configuration for all the tasks
@@ -70,7 +73,27 @@ module.exports = function (grunt) {
             '*.config', 'App_Config/**/*.config'
         ]
       }
-    },
+    },<% if (includeNode) { %>
+
+    // The actual grunt server settings
+    connect: {
+      options: {
+        port: '<%%= config.nodePort %>',
+        open: 'http://<%%= config.nodeHost %>:<%%= config.nodePort %><%%= config.nodeStartPath %>',
+        livereload: 35729,
+        // Change this to '0.0.0.0' to access the server from outside
+        hostname: '<%%= config.nodeHost %>'
+      },
+      livereload: {
+        options: {
+          middleware: function(connect) {
+            return [
+              connect.static('.')
+            ];
+          }
+        }
+      },
+    },<% } %>
 
     // Rebuilds the project
     msbuild: {
@@ -288,11 +311,24 @@ module.exports = function (grunt) {
       done();
     });
   });
+  <% if (includeNode) { %>
+  grunt.registerTask('serve', function (server) {
+    if (server === 'node') {
+      return grunt.task.run([
+        'connect:livereload',
+        'watch'
+      ]);
+    }
 
-  grunt.registerTask('serve', [
+    grunt.task.run([
       'open:server',
       'watch'
-  ]);
+    ]);
+  });<% } else { %>
+  grunt.registerTask('serve', [
+    'open:server',
+    'watch'
+  ]);<% } %>
 
   grunt.registerTask('build', function (target) {
     if (target === 'dist') {
