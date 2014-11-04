@@ -17,7 +17,6 @@
     "grunt-contrib-watch": "^0.6.1",
     "grunt-google-cdn-implicit": "^0.3.0",
     "grunt-newer": "^0.8.0",
-    "grunt-msbuild": "^0.2.2",
     "grunt-open": "^0.2.3",
     "grunt-rev": "^0.1.0",
     "grunt-sass": "^0.14.0",

@@ -69,8 +69,7 @@ module.exports = function (grunt) {
             'Views/**/*.cshtml',
             '<%%= config.cssDir %>/{,*/}*.css',
             '<%%= config.jsDir %>/{,*/}*.js',
-            '<%%= config.imgDir %>/{,*/}*.{gif,jpeg,jpg,png,svg,webp}',
-            '*.config', 'App_Config/**/*.config'
+            '<%%= config.imgDir %>/{,*/}*.{gif,jpeg,jpg,png,svg,webp}'
         ]
       }
     },<% if (includeNode) { %>
@@ -94,24 +93,6 @@ module.exports = function (grunt) {
         }
       },
     },<% } %>
-
-    // Rebuilds the project
-    msbuild: {
-      dev: {
-        src: ['<%%= config.proj %>.csproj'],
-        options: {
-          projectConfiguration: 'Debug',
-          targets: ['Build'],
-          stdout: true,
-          maxCpuCount: 8,
-          buildParameters: {
-            WarningLevel: 2,
-            VisualStudioVersion: '<%%= config.vsVer %>'
-          },
-          verbosity: 'quiet'
-        }
-      }
-    },
 
     // Empties files/dirs to start fresh
     clean: {
@@ -320,7 +301,6 @@ module.exports = function (grunt) {
           'copy:dist',
           'install:bower',
           'bower:require',
-          'msbuild',
           'sass',
           'autoprefixer',
           'requirejs',
@@ -337,7 +317,6 @@ module.exports = function (grunt) {
     grunt.task.run([
         'install:bower',
         'bower:require',
-        'msbuild',
         'sass',
         'autoprefixer'
     ]);
