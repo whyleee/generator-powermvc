@@ -283,22 +283,6 @@ module.exports = function (grunt) {
         path: 'http://<%%= config.host %>:<%%= config.port %>',
         app: 'chrome'
       }
-    },
-
-    // Run some tasks in parallel to speed up build process
-    concurrent: {
-      build: [
-          'bower:require',
-          'msbuild',
-          'sass'
-      ],
-      min: [
-          'requirejs',
-          'cssmin',
-          'uglify',
-          'imagemin',
-          'svgmin'
-      ]
     }
   });
 
@@ -335,9 +319,15 @@ module.exports = function (grunt) {
           'clean:dist',
           'copy:dist',
           'install:bower',
-          'concurrent:build',
+          'bower:require',
+          'msbuild',
+          'sass',
           'autoprefixer',
-          'concurrent:min',
+          'requirejs',
+          'cssmin',
+          'uglify',
+          'imagemin',
+          'svgmin',
           'cdnify',
           'rev',
           'usemin'
@@ -346,7 +336,9 @@ module.exports = function (grunt) {
 
     grunt.task.run([
         'install:bower',
-        'concurrent:build',
+        'bower:require',
+        'msbuild',
+        'sass',
         'autoprefixer'
     ]);
   });
