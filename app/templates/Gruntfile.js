@@ -51,7 +51,7 @@ module.exports = function (grunt) {
       },
       bower: {
         files: ['bower.json'],
-        tasks: ['install:bower', 'bower:require']
+        tasks: ['bower-install-simple', 'bower:require']
       },
       sass: {
         files: ['<%%= config.sassDir %>/{,*/}*.{scss,sass}'],
@@ -99,6 +99,11 @@ module.exports = function (grunt) {
       dist: [
           'min'
       ]
+    },
+
+    // Installs missing bower components
+    'bower-install-simple': {
+      dist: {}
     },
 
     // Make sure code styles are up to par and there are no obvious mistakes
@@ -254,10 +259,6 @@ module.exports = function (grunt) {
       }
     },
 
-    install: {
-      bower: {}
-    },
-
     // Open in browser
     open: {
       server: {
@@ -265,15 +266,6 @@ module.exports = function (grunt) {
         app: 'chrome'
       }
     }
-  });
-
-  grunt.registerTask('install', 'install/restore npm and bower dependencies', function(cmd) {
-    var exec = require('child_process').exec;
-    var done = this.async();
-    exec(cmd + ' install', {cwd: '.'}, function(err, stdout/*, stderr */) {
-      console.log(stdout);
-      done();
-    });
   });
   <% if (includeNode) { %>
   grunt.registerTask('serve', function (server) {
@@ -299,7 +291,7 @@ module.exports = function (grunt) {
       return grunt.task.run([
           'clean:dist',
           'copy:dist',
-          'install:bower',
+          'bower-install-simple',
           'bower:require',
           'sass',
           'autoprefixer',
@@ -315,7 +307,7 @@ module.exports = function (grunt) {
     }
 
     grunt.task.run([
-        'install:bower',
+        'bower-install-simple',
         'bower:require',
         'sass',
         'autoprefixer'
