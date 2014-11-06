@@ -208,10 +208,7 @@ module.exports = function (grunt) {
     },
     bower: {
       require: {
-        rjsConfig: '<%%= config.jsDir %>/config.js',
-        options: {
-          baseUrl: '<%%= config.jsDir %>'
-        }
+        rjsConfig: '<%%= config.jsDir %>/config.js'
       }
     },
     requirejs: {
