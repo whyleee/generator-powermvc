@@ -166,7 +166,7 @@ module.exports = yeoman.generators.Base.extend({
         '    <!-- build:cdn -->\r\n' +
         '    <!-- build:js /' + this.jsDir + '/min.js -->\r\n' +
         '    <script src="/' + this.bowerDir + '/requirejs/require.js"></script>\r\n' +
-        '    <script>require([\'' + this.jsDir + '/config\'], function(){require([\'main\']);});</script>\r\n' +
+        '    <script>require([\'/' + this.jsDir + '/config.js\'], function(){require([\'main\']);});</script>\r\n' +
         '    <!-- endbuild -->\r\n'
       );
     }
