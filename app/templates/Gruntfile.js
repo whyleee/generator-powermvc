@@ -34,7 +34,8 @@ module.exports = function (grunt) {
     vsVer: '<%= vsVer %>'<% if (includeNode) { %>,
     nodeHost: 'localhost',
     nodePort: 9000,
-    nodeStartPath: '<%= nodeStartPath %>'<% } %>
+    nodeStartPath: '<%= nodeStartPath %>'<% } %>,
+    distDir: 'dist'
   };
 
   // Define the configuration for all the tasks
@@ -100,7 +101,7 @@ module.exports = function (grunt) {
     // Empties files/dirs to start fresh
     clean: {
       dist: [
-        'min'
+        '<%%= config.distDir %>'
       ]
     },
 
@@ -158,7 +159,7 @@ module.exports = function (grunt) {
     copy: {
       dist: {
         src: 'Views/Shared/_Layout.cshtml',
-        dest: 'min/'
+        dest: '<%%= config.distDir %>/'
       }
     },
 
@@ -169,7 +170,7 @@ module.exports = function (grunt) {
           expand: true,
           cwd: '<%%= config.imgDir %>',
           src: '{,*/}*.{gif,jpeg,jpg,png}',
-          dest: 'min/<%%= config.imgDir %>'
+          dest: '<%%= config.distDir %>/<%%= config.imgDir %>'
         }]
       }
     },
@@ -179,7 +180,7 @@ module.exports = function (grunt) {
           expand: true,
           cwd: '<%%= config.imgDir %>',
           src: '{,*/}*.svg',
-          dest: 'min/<%%= config.imgDir %>'
+          dest: '<%%= config.distDir %>/<%%= config.imgDir %>'
         }]
       }
     },
@@ -189,7 +190,7 @@ module.exports = function (grunt) {
           keepSpecialComments: 0
         },
         files: {
-          'min/<%%= config.cssDir %>/min.css': [
+          '<%%= config.distDir %>/<%%= config.cssDir %>/min.css': [
             '<%%= config.cssDir %>/{,*/}*.css',
             '!<%%= config.cssDir %>/{,*/}*.min.css'
           ]
@@ -199,7 +200,7 @@ module.exports = function (grunt) {
     uglify: {
       dist: {
         files: {
-          'min/<%%= config.jsDir %>/min.almond.js': [
+          '<%%= config.distDir %>/<%%= config.jsDir %>/min.almond.js': [
             '<%%= config.bowerDir %>/almond/almond.js'
           ]
         }
@@ -219,7 +220,7 @@ module.exports = function (grunt) {
           baseUrl: '<%%= config.jsDir %>',
           mainConfigFile: '<%%= config.jsDir %>/config.js',
           name: 'main',
-          out: 'min/<%%= config.jsDir %>/min.js',
+          out: '<%%= config.distDir %>/<%%= config.jsDir %>/min.js',
           paths: {
             'jquery': 'empty:'
           },
@@ -231,19 +232,19 @@ module.exports = function (grunt) {
       dist: {
         files: {
           src: [
-            'min/<%%= config.cssDir %>/{,*/}*.css',
-            'min/<%%= config.jsDir %>/{,*/}*.js',
-            'min/<%%= config.imgDir %>/{,*/}*.*'
+            '<%%= config.distDir %>/<%%= config.cssDir %>/{,*/}*.css',
+            '<%%= config.distDir %>/<%%= config.jsDir %>/{,*/}*.js',
+            '<%%= config.distDir %>/<%%= config.imgDir %>/{,*/}*.*'
           ]
         }
       }
     },
     usemin: {
       options: {
-        assetsDirs: ['min']
+        assetsDirs: ['<%%= config.distDir %>']
       },
-      html: ['min/Views/Shared/_Layout.cshtml'],
-      css: ['min/<%%= config.cssDir %>/{,*/}*.css']
+      html: ['<%%= config.distDir %>/Views/Shared/_Layout.cshtml'],
+      css: ['<%%= config.distDir %>/<%%= config.cssDir %>/{,*/}*.css']
     },
     cdnify: {
       dist: {
@@ -251,7 +252,7 @@ module.exports = function (grunt) {
           localFallback: true,
           bowerDir: '<%%= config.bowerDir %>',
         },
-        html: ['min/Views/Shared/_Layout.cshtml'],
+        html: ['<%%= config.distDir %>/Views/Shared/_Layout.cshtml'],
         almond: '<%%= config.jsDir %>/min.almond.js',
         components: {
           'jquery': {

@@ -28,9 +28,9 @@
   <!-- Include additional files to the deployment package -->
   <Target Name="DefineCustomWebDeployFiles">
     <ItemGroup>
-      <!-- By default, all minified html/images/css/js will be copied to /min dir -->
+      <!-- By default, all minified html/images/css/js will be copied to /<%= distDir.replace(/\//g, '\\') %> dir -->
       <!-- Copy all minified stuff to the web root in the deployment package -->
-      <CustomFilesToInclude Include="min\**\*">
+      <CustomFilesToInclude Include="<%= distDir.replace(/\//g, '\\') %>\**\*">
         <Dir>.</Dir>
       </CustomFilesToInclude>
       <!-- Add other files here -->

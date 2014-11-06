@@ -104,6 +104,7 @@ module.exports = yeoman.generators.Base.extend({
       this.imgDir = answers.imgDir;
       this.fontsDir = answers.fontsDir;
       this.vsVer = answers.vsVer;
+      this.distDir = 'dist';
 
       this.includeNode = hasFeature('includeNode');
 
