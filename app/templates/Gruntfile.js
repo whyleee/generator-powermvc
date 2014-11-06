@@ -68,11 +68,11 @@ module.exports = function (grunt) {
           livereload: 35729
         },
         files: [
-            'Gruntfile.js',
-            'Views/**/*.cshtml',
-            '<%%= config.cssDir %>/{,*/}*.css',
-            '<%%= config.jsDir %>/{,*/}*.js',
-            '<%%= config.imgDir %>/{,*/}*.{gif,jpeg,jpg,png,svg,webp}'
+          'Gruntfile.js',
+          'Views/**/*.cshtml',
+          '<%%= config.cssDir %>/{,*/}*.css',
+          '<%%= config.jsDir %>/{,*/}*.js',
+          '<%%= config.imgDir %>/{,*/}*.{gif,jpeg,jpg,png,svg,webp}'
         ]
       }
     },<% if (includeNode) { %>
@@ -100,7 +100,7 @@ module.exports = function (grunt) {
     // Empties files/dirs to start fresh
     clean: {
       dist: [
-          'min'
+        'min'
       ]
     },
 
@@ -116,9 +116,9 @@ module.exports = function (grunt) {
         reporter: require('jshint-stylish')
       },
       all: [
-          'Gruntfile.js',
-          '<%%= config.jsDir %>/*.js',
-          '!<%%= config.jsLibDir %>/*'
+        'Gruntfile.js',
+        '<%%= config.jsDir %>/*.js',
+        '!<%%= config.jsLibDir %>/*'
       ]
     },
 
@@ -190,8 +190,8 @@ module.exports = function (grunt) {
         },
         files: {
           'min/<%%= config.cssDir %>/min.css': [
-              '<%%= config.cssDir %>/{,*/}*.css',
-              '!<%%= config.cssDir %>/{,*/}*.min.css'
+            '<%%= config.cssDir %>/{,*/}*.css',
+            '!<%%= config.cssDir %>/{,*/}*.min.css'
           ]
         }
       }
@@ -200,7 +200,7 @@ module.exports = function (grunt) {
       dist: {
         files: {
           'min/<%%= config.jsDir %>/min.almond.js': [
-              '<%%= config.bowerDir %>/almond/almond.js'
+            '<%%= config.bowerDir %>/almond/almond.js'
           ]
         }
       }
@@ -231,9 +231,9 @@ module.exports = function (grunt) {
       dist: {
         files: {
           src: [
-              'min/<%%= config.cssDir %>/{,*/}*.css',
-              'min/<%%= config.jsDir %>/{,*/}*.js',
-              'min/<%%= config.imgDir %>/{,*/}*.*'
+            'min/<%%= config.cssDir %>/{,*/}*.css',
+            'min/<%%= config.jsDir %>/{,*/}*.js',
+            'min/<%%= config.imgDir %>/{,*/}*.*'
           ]
         }
       }
@@ -292,33 +292,33 @@ module.exports = function (grunt) {
   grunt.registerTask('build', function (target) {
     if (target === 'dist') {
       return grunt.task.run([
-          'clean:dist',
-          'copy:dist',
-          'bower-install-simple',
-          'bower:require',
-          'sass',
-          'autoprefixer',
-          'requirejs',
-          'cssmin',
-          'uglify',
-          'imagemin',
-          'svgmin',
-          'cdnify',
-          'rev',
-          'usemin'
+        'clean:dist',
+        'copy:dist',
+        'bower-install-simple',
+        'bower:require',
+        'sass',
+        'autoprefixer',
+        'requirejs',
+        'cssmin',
+        'uglify',
+        'imagemin',
+        'svgmin',
+        'cdnify',
+        'rev',
+        'usemin'
       ]);
     }
 
     grunt.task.run([
-        'bower-install-simple',
-        'bower:require',
-        'sass',
-        'autoprefixer'
+      'bower-install-simple',
+      'bower:require',
+      'sass',
+      'autoprefixer'
     ]);
   });
 
   grunt.registerTask('default', [
-      'newer:jshint',
-      'build'
+    'newer:jshint',
+    'build'
   ]);
 };
