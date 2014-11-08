@@ -180,7 +180,7 @@ module.exports = yeoman.generators.Base.extend({
       layoutHtml = this.append(layoutHtml, 'body',
         '    <!-- build:remove:dist -->\r\n' +
         '    <script src="//localhost:35729/livereload.js"></script>\r\n' +
-        '    <!-- /build -->\r\n'
+        '    <!-- endbuild -->\r\n'
       );
     }
 

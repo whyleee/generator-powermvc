@@ -221,27 +221,36 @@ module.exports = function (grunt) {
           paths: {
             'jquery': 'empty:'
           },
+          optimize: 'uglify2',
+          generateSourceMaps: true,
           preserveLicenseComments: false
         }
       }
     },
-    rev: {
+    filerev: {
       dist: {
-        files: {
-          src: [
-            '<%%= config.distDir %>/<%%= config.cssDir %>/{,*/}*.css',
-            '<%%= config.distDir %>/<%%= config.jsDir %>/{,*/}*.js',
-            '<%%= config.distDir %>/<%%= config.imgDir %>/{,*/}*.*'
-          ]
-        }
+        src: [
+          '<%%= config.distDir %>/<%%= config.cssDir %>/{,*/}*.css',
+          '<%%= config.distDir %>/<%%= config.jsDir %>/{,*/}*.js',
+          '<%%= config.distDir %>/<%%= config.imgDir %>/{,*/}*.*'
+        ]
       }
     },
     usemin: {
       options: {
-        assetsDirs: ['<%%= config.distDir %>']
+        assetsDirs: [
+          '<%%= config.distDir %>',
+          '<%%= config.distDir %>/<%%= config.jsDir %>'
+        ],
+        patterns: {
+          jsmaprefs: [
+            [/(min\.js\.map)/, 'Update js to reference our revved map']
+          ]
+        }
       },
       html: ['<%%= config.distDir %>/Views/Shared/_Layout.cshtml'],
-      css: ['<%%= config.distDir %>/<%%= config.cssDir %>/{,*/}*.css']
+      css: ['<%%= config.distDir %>/<%%= config.cssDir %>/{,*/}*.css'],
+      jsmaprefs: ['<%%= config.distDir %>/<%%= config.jsDir %>/{,*/}*.js']
     },
     cdnify: {
       dist: {
@@ -302,7 +311,7 @@ module.exports = function (grunt) {
         'imagemin',
         'svgmin',
         'cdnify',
-        'rev',
+        'filerev',
         'usemin'
       ]);
     }
