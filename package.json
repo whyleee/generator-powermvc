@@ -21,11 +21,12 @@
   ],
   "dependencies": {
     "chalk": "^0.5.1",
+    "xmldom": "^0.1.19",
+    "xpath": "^0.0.7",
     "yeoman-generator": "^0.17.7",
-    "yosay": "~1.0.0"
+    "yosay": "^1.0.0"
   },
-  "devDependencies": {
-  },
+  "devDependencies": {},
   "peerDependencies": {
     "yo": ">=1.2.0"
   }
