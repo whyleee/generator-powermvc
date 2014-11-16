@@ -1,10 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <!-- Fix for ERROR_APPPOOL_VERSION_MISMATCH error during deploy of .NET 4.5 apps -->
-    <IgnoreDeployManagedRuntimeVersion>True</IgnoreDeployManagedRuntimeVersion>
-  </PropertyGroup>
-  <PropertyGroup>
     <!-- Hook into msbuild pipeline before creating a deployment package -->
     <CopyAllFilesToSingleFolderForPackageDependsOn>
       RunGrunt;
