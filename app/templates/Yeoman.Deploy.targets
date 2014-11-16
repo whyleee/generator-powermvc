@@ -3,40 +3,40 @@
   <PropertyGroup>
     <!-- Hook into msbuild pipeline before creating a deployment package -->
     <CopyAllFilesToSingleFolderForPackageDependsOn>
-      RunGrunt;
-      DefineCustomWebDeployFiles;
-      CustomWebDeployFiles;
+      Yo_RunGrunt;
+      Yo_DefineCustomWebDeployFiles;
+      Yo_CustomWebDeployFiles;
       $(CopyAllFilesToSingleFolderForPackageDependsOn);
     </CopyAllFilesToSingleFolderForPackageDependsOn>
     <!-- Hook into msbuild pipeline before publishing the app using WMSVC -->
     <CopyAllFilesToSingleFolderForMsdeployDependsOn>
-      RunGrunt;
-      DefineCustomWebDeployFiles;
-      CustomWebDeployFiles;
+      Yo_RunGrunt;
+      Yo_DefineCustomWebDeployFiles;
+      Yo_CustomWebDeployFiles;
       $(CopyAllFilesToSingleFolderForMsdeployDependsOn);
     </CopyAllFilesToSingleFolderForMsdeployDependsOn>
   </PropertyGroup>
   <!-- Restore npm packages and run grunt build -->
-  <Target Name="RunGrunt">
+  <Target Name="Yo_RunGrunt">
     <Exec Command=".bin\npm install" />
     <Exec Command=".bin\grunt build:dist" />
   </Target>
   <!-- Include additional files to the deployment package -->
-  <Target Name="DefineCustomWebDeployFiles">
+  <Target Name="Yo_DefineCustomWebDeployFiles">
     <ItemGroup>
       <!-- By default, all minified html/images/css/js will be copied to /<%= distDir.replace(/\//g, '\\') %> dir -->
       <!-- Copy all minified stuff to the web root in the deployment package -->
-      <CustomFilesToInclude Include="<%= distDir.replace(/\//g, '\\') %>\**\*">
+      <Yo_CustomFilesToInclude Include="<%= distDir.replace(/\//g, '\\') %>\**\*">
         <Dir>.</Dir>
-      </CustomFilesToInclude>
+      </Yo_CustomFilesToInclude>
       <!-- Add other files here -->
     </ItemGroup>
   </Target>
   <!-- Internal target to include all additional files defined in the previous target to the deployment package -->
-  <Target Name="CustomWebDeployFiles">
+  <Target Name="Yo_CustomWebDeployFiles">
     <ItemGroup>
-      <FilesForPackagingFromProject Include="@(CustomFilesToInclude)">
-        <DestinationRelativePath>%(CustomFilesToInclude.Dir)\%(RecursiveDir)%(Filename)%(Extension)</DestinationRelativePath>
+      <FilesForPackagingFromProject Include="@(Yo_CustomFilesToInclude)">
+        <DestinationRelativePath>%(Yo_CustomFilesToInclude.Dir)\%(RecursiveDir)%(Filename)%(Extension)</DestinationRelativePath>
       </FilesForPackagingFromProject>
     </ItemGroup>
   </Target>
