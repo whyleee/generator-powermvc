@@ -7,6 +7,7 @@ var yeoman = require('yeoman-generator');
 var chalk = require('chalk');
 var xmldom = require('xmldom');
 var xpath = require('xpath');
+var parseUrl = require('url').parse;
 
 module.exports = yeoman.generators.Base.extend({
   constructor: function () {
@@ -33,14 +34,6 @@ module.exports = yeoman.generators.Base.extend({
     };
 
     var prompts = [{
-      name: 'host',
-      message: 'What hostname would you like to use?',
-      default: 'localhost'
-    }, {
-      name: 'port',
-      message: 'What port would you like to use?',
-      default: '9001'
-    }, {
       name: 'cssDir',
       message: 'Path to css files?',
       default: 'Content'
@@ -96,8 +89,13 @@ module.exports = yeoman.generators.Base.extend({
       }
 
       this.projName = path.basename(process.cwd());
-      this.host = answers.host;
-      this.port = answers.port;
+
+      var serverUrl = parseUrl(this._getServerUrl());
+
+      this.host = serverUrl.hostname;
+      this.port = serverUrl.port || 80;
+      this.urlpath = serverUrl.pathname || '/';
+
       this.cssDir = answers.cssDir;
       this.sassDir = answers.sassDir;
       this.jsDir = answers.jsDir;
@@ -121,11 +119,6 @@ module.exports = yeoman.generators.Base.extend({
       done();
     }.bind(this));
   },
-
-  projectfiles: function () {
-
-  },
-
   configs: function() {
     this._copy('editorconfig', '.editorconfig', /*dev*/ true);
     this._copy('jshintrc', '.jshintrc', /*dev*/ true);
@@ -271,6 +264,24 @@ module.exports = yeoman.generators.Base.extend({
       dev: Boolean(dev)
     });
     this.write(path, content);
+  },
+
+  _getServerUrl: function() {
+    var proj = this.readFileAsString(this.projName + '.csproj');
+    var doc = new xmldom.DOMParser().parseFromString(proj);
+    var select = xpath.useNamespaces({'msbuild': 'http://schemas.microsoft.com/developer/msbuild/2003'});
+
+    var useIis = select('//msbuild:UseIIS/text()', doc)[0];
+    var urlNode;
+
+    if (useIis && useIis.data && useIis.data.toUpperCase() == 'TRUE') {
+      urlNode = select('//msbuild:IISUrl/text()', doc)[0];
+    } else {
+      urlNode = select('//msbuild:CustomServerUrl/text()', doc)[0];
+    }
+
+    var serverUrl = urlNode ? urlNode.data : null;
+    return serverUrl;
   },
 
   _addToConfig: function(parent, elems) {

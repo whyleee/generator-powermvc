@@ -23,6 +23,7 @@ module.exports = function (grunt) {
     proj: '<%= projName %>',
     host: '<%= host %>',
     port: <%= port %>,
+    urlpath: '<%= urlpath %>',
     cssDir: '<%= cssDir %>',
     sassDir: '<%= sassDir %>',
     jsDir: '<%= jsDir %>',
@@ -273,7 +274,7 @@ module.exports = function (grunt) {
     // Open in browser
     open: {
       server: {
-        path: 'http://<%%= config.host %>:<%%= config.port %>',
+        path: 'http://<%%= config.host %>:<%%= config.port %><%%= config.urlpath %>',
         app: 'chrome'
       }
     }
