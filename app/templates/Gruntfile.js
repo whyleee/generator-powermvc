@@ -77,7 +77,16 @@ module.exports = function (grunt) {
           '<%%= config.imgDir %>/{,*/}*.{gif,jpeg,jpg,png,svg,webp}'
         ]
       }
-    },<% if (includeNode) { %>
+    },<% if (useIisExpress) { %>
+
+    // IIS Express server settings
+    iisexpress: {
+      server: {
+        options: {
+          site: '<%%= config.proj %>'
+        }
+      }
+    },<% } %><% if (includeNode) { %>
 
     // The actual grunt server settings
     connect: {
@@ -288,12 +297,14 @@ module.exports = function (grunt) {
       ]);
     }
 
-    grunt.task.run([
+    grunt.task.run([<% if (useIisExpress) { %>
+      'iisexpress',<% } %>
       'open:server',
       'watch'
     ]);
   });<% } else { %>
-  grunt.registerTask('serve', [
+  grunt.registerTask('serve', [<% if (useIisExpress) { %>
+    'iisexpress',<% } %>
     'open:server',
     'watch'
   ]);<% } %>

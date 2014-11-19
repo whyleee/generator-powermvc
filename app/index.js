@@ -8,6 +8,7 @@ var chalk = require('chalk');
 var xmldom = require('xmldom');
 var xpath = require('xpath');
 var parseUrl = require('url').parse;
+var cp = require('child_process');
 
 module.exports = yeoman.generators.Base.extend({
   constructor: function () {
@@ -90,35 +91,39 @@ module.exports = yeoman.generators.Base.extend({
 
       this.projName = path.basename(process.cwd());
 
-      var serverUrl = parseUrl(this._getServerUrl());
+      this._getServerUrl(function(serverUrl, useIisExpress) {
+        serverUrl = parseUrl(serverUrl);
 
-      this.host = serverUrl.hostname;
-      this.port = serverUrl.port || 80;
-      this.urlpath = serverUrl.pathname || '/';
+        this.host = serverUrl.hostname;
+        this.port = serverUrl.port || 80;
+        this.urlpath = serverUrl.pathname || '/';
+        this.useIisExpress = useIisExpress;
 
-      this.cssDir = answers.cssDir;
-      this.sassDir = answers.sassDir;
-      this.jsDir = answers.jsDir;
-      this.jsLibDir = answers.jsLibDir;
-      this.bowerDir = answers.bowerDir;
-      this.imgDir = answers.imgDir;
-      this.fontsDir = answers.fontsDir;
-      this.vsVer = answers.vsVer;
-      this.distDir = 'dist';
+        this.cssDir = answers.cssDir;
+        this.sassDir = answers.sassDir;
+        this.jsDir = answers.jsDir;
+        this.jsLibDir = answers.jsLibDir;
+        this.bowerDir = answers.bowerDir;
+        this.imgDir = answers.imgDir;
+        this.fontsDir = answers.fontsDir;
+        this.vsVer = answers.vsVer;
+        this.distDir = 'dist';
 
-      this.includeNode = hasFeature('includeNode');
+        this.includeNode = hasFeature('includeNode');
 
-      if (this.includeNode) {
-        this.nodeStartPath = answers.nodeStartPath;
+        if (this.includeNode) {
+          this.nodeStartPath = answers.nodeStartPath;
 
-        if (!this.nodeStartPath.indexOf('/') == 0) {
-          this.nodeStartPath = '/' + this.nodeStartPath;
+          if (!this.nodeStartPath.indexOf('/') == 0) {
+            this.nodeStartPath = '/' + this.nodeStartPath;
+          }
         }
-      }
 
-      done();
+        done();
+      }.bind(this));
     }.bind(this));
   },
+
   configs: function() {
     this._copy('editorconfig', '.editorconfig', /*dev*/ true);
     this._copy('jshintrc', '.jshintrc', /*dev*/ true);
@@ -266,22 +271,58 @@ module.exports = yeoman.generators.Base.extend({
     this.write(path, content);
   },
 
-  _getServerUrl: function() {
+  // async
+  _getServerUrl: function(cb) {
     var proj = this.readFileAsString(this.projName + '.csproj');
     var doc = new xmldom.DOMParser().parseFromString(proj);
     var select = xpath.useNamespaces({'msbuild': 'http://schemas.microsoft.com/developer/msbuild/2003'});
 
-    var useIis = select('//msbuild:UseIIS/text()', doc)[0];
+    var useIisEl = select('//msbuild:UseIIS/text()', doc)[0];
+    var useIis = useIisEl && useIisEl.data && useIisEl.data.toUpperCase() == 'TRUE';
     var urlNode;
 
-    if (useIis && useIis.data && useIis.data.toUpperCase() == 'TRUE') {
+    if (useIis) {
       urlNode = select('//msbuild:IISUrl/text()', doc)[0];
     } else {
       urlNode = select('//msbuild:CustomServerUrl/text()', doc)[0];
     }
 
     var serverUrl = urlNode ? urlNode.data : null;
-    return serverUrl;
+
+    var useIisExpressEl = select('//msbuild:UseIISExpress/text()', doc)[0];
+    var useIisExpress = useIisExpressEl && useIisExpressEl.data && useIisExpressEl.data.toUpperCase() == 'TRUE';
+    var iisCmdPath = 'c:/program files/iis express/appcmd.exe';
+
+    // if iss express: create site if not exists
+    if (useIis && useIisExpress && fs.existsSync(iisCmdPath)) {
+      var siteUrl = serverUrl.replace(/\/$/, '');
+      var siteName = this.projName;
+      var sitePath = process.cwd();
+      var yo = this;
+
+      cp.execFile(iisCmdPath, ['list', 'site', siteUrl], {}, function(err, stdout, stderr) {
+        if (!err) {
+          cb(serverUrl, useIisExpress);
+        } else {
+          cp.execFile(iisCmdPath, ['add', 'site',
+              '/name:' + siteName,
+              '/bindings:' + siteUrl,
+              '/physicalPath:' + sitePath
+            ], {},
+            function(err, stdout, stderr) {
+              if (!err) {
+                yo.log(chalk.green('created') + ' IIS Express site');
+              } else {
+                yo.log(chalk.yellow('error') + ' creating IIS Express site');
+              }
+              cb(serverUrl, useIisExpress);
+            }
+          );
+        }
+      });
+    } else {
+      cb(serverUrl, useIisExpress);
+    };
   },
 
   _addToConfig: function(parent, elems) {
