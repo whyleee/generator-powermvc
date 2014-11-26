@@ -63,10 +63,6 @@ module.exports = yeoman.generators.Base.extend({
       message: 'Path to fonts?',
       default: 'fonts'
     }, {
-      name: 'vsVer',
-      message: 'Your Visual Studio version?',
-      default: '12.0'
-    }, {
       type: 'checkbox',
       name: 'features',
       message: 'What more would you like?',
@@ -75,6 +71,11 @@ module.exports = yeoman.generators.Base.extend({
         value: 'includeNode',
         checked: false
       }]
+    }, {
+      when: nodeIncluded,
+      name: 'htmlDir',
+      message: 'Path to html?',
+      default: 'html'
     }, {
       when: nodeIncluded,
       name: 'nodeStartPath',
@@ -106,13 +107,13 @@ module.exports = yeoman.generators.Base.extend({
         this.bowerDir = answers.bowerDir;
         this.imgDir = answers.imgDir;
         this.fontsDir = answers.fontsDir;
-        this.vsVer = answers.vsVer;
         this.distDir = 'dist';
         this.livereloadPort = 35729;
 
         this.includeNode = hasFeature('includeNode');
 
         if (this.includeNode) {
+          this.htmlDir = answers.htmlDir;
           this.nodeStartPath = answers.nodeStartPath;
 
           if (!this.nodeStartPath.indexOf('/') == 0) {

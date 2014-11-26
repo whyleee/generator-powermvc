@@ -31,11 +31,11 @@ module.exports = function (grunt) {
     bowerDir: '<%= bowerDir %>',
     bowerDirName: require('path').basename('<%= bowerDir %>'),
     imgDir: '<%= imgDir %>',
-    fontsDir: '<%= fontsDir %>',
-    vsVer: '<%= vsVer %>'<% if (includeNode) { %>,
+    fontsDir: '<%= fontsDir %>',<% if (includeNode) { %>
+    htmlDir: '<%= htmlDir %>',
     nodeHost: 'localhost',
     nodePort: 9000,
-    nodeStartPath: '<%= nodeStartPath %>'<% } %>,
+    nodeStartPath: '<%= nodeStartPath %>',<% } %>
     distDir: 'dist'
   };
 
@@ -71,7 +71,8 @@ module.exports = function (grunt) {
         },
         files: [
           'Gruntfile.js',
-          'Views/**/*.cshtml',
+          'Views/**/*.cshtml',<% if (includeNode) { %>
+          '<%%= config.htmlDir %>/{,*/}*.html',<% } %>
           '<%%= config.cssDir %>/{,*/}*.css',
           '<%%= config.jsDir %>/{,*/}*.js',
           '<%%= config.imgDir %>/{,*/}*.{gif,jpeg,jpg,png,svg,webp}'
