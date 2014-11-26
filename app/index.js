@@ -166,10 +166,13 @@ module.exports = yeoman.generators.Base.extend({
     // add js refs
     if (layoutHtml.indexOf('build:js') == -1) {
       layoutHtml = this.append(layoutHtml, 'body',
-        '    <!-- build:cdn -->\r\n' +
-        '    <!-- build:js /' + this.jsDir + '/main.js -->\r\n' +
+        '    <!-- build:js /' + this.jsDir + '/almond.js -->\r\n' +
         '    <script src="/' + this.bowerDir + '/requirejs/require.js"></script>\r\n' +
-        '    <script>require([\'/' + this.jsDir + '/config.js\'], function(){require([\'main\']);});</script>\r\n' +
+        '    <!-- endbuild -->\r\n' +
+        '    <script src="/' + this.bowerDir + '/jquery/dist/jquery.js"></script>\r\n' +
+        '    <!-- build:js /' + this.jsDir + '/main.js -->\r\n' +
+        '    <script src="/' + this.jsDir + '/config.js"></script>\r\n' +
+        '    <script>require([\'main\']);</script>\r\n' +
         '    <!-- endbuild -->\r\n'
       );
     }

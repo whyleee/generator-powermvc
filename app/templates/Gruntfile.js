@@ -15,7 +15,7 @@ module.exports = function (grunt) {
   // Load grunt tasks on demand
   require('jit-grunt')(grunt, {
     bower: 'grunt-bower-requirejs',
-    cdnify: 'grunt-google-cdn-implicit'
+    cdnify: 'grunt-google-cdn'
   });
 
   // Configurable paths
@@ -265,19 +265,12 @@ module.exports = function (grunt) {
       jsmaprefs: ['<%%= config.distDir %>/<%%= config.jsDir %>/{,*/}*.js']
     },
     cdnify: {
+      options: {
+        cdn: require('google-cdn-data'),
+        componentsPath: '<%%= config.bowerDir %>'
+      },
       dist: {
-        options: {
-          localFallback: true,
-          bowerDir: '<%%= config.bowerDir %>',
-        },
-        html: ['<%%= config.distDir %>/Views/Shared/_Layout.cshtml'],
-        almond: '<%%= config.jsDir %>/almond.js',
-        components: {
-          'jquery': {
-            localPath: '<%%= config.bowerDir %>/jquery/dist/jquery.min.js',
-            success: 'window.jQuery'
-          }
-        }
+        html: ['<%%= config.distDir %>/Views/Shared/_Layout.cshtml']
       }
     },
 
@@ -324,9 +317,9 @@ module.exports = function (grunt) {
         'uglify',
         'imagemin',
         'svgmin',
-        'cdnify',
         'filerev',
-        'usemin'
+        'usemin',
+        'cdnify'
       ]);
     }
 
