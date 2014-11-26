@@ -108,6 +108,7 @@ module.exports = yeoman.generators.Base.extend({
         this.fontsDir = answers.fontsDir;
         this.vsVer = answers.vsVer;
         this.distDir = 'dist';
+        this.livereloadPort = 35729;
 
         this.includeNode = hasFeature('includeNode');
 
@@ -176,10 +177,10 @@ module.exports = yeoman.generators.Base.extend({
     layoutHtml = layoutHtml.replace(/(@\*\s*)?(@Scripts\.Render\(.+\)|@Styles\.Render\(.+\))(\s*\*@)?/g, '@\*$2\*@');
 
     // insert livereload ref
-    if (layoutHtml.indexOf('//localhost:35729/livereload.js') == -1) {
+    if (layoutHtml.indexOf('//localhost:' + this.livereloadPort + '/livereload.js') == -1) {
       layoutHtml = this.append(layoutHtml, 'body',
         '    <!-- build:remove:dist -->\r\n' +
-        '    <script src="//localhost:35729/livereload.js"></script>\r\n' +
+        '    <script src="//localhost:' + this.livereloadPort + '/livereload.js"></script>\r\n' +
         '    <!-- endbuild -->\r\n'
       );
     }

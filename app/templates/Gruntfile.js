@@ -67,7 +67,7 @@ module.exports = function (grunt) {
       },
       reload: {
         options: {
-          livereload: 35729
+          livereload: <%= livereloadPort %>
         },
         files: [
           'Gruntfile.js',
@@ -93,7 +93,7 @@ module.exports = function (grunt) {
       options: {
         port: '<%%= config.nodePort %>',
         open: 'http://<%%= config.nodeHost %>:<%%= config.nodePort %><%%= config.nodeStartPath %>',
-        livereload: 35729,
+        livereload: '<%%= watch.reload.options.livereload %>',
         // Change this to '0.0.0.0' to access the server from outside
         hostname: '<%%= config.nodeHost %>'
       },
