@@ -202,7 +202,7 @@ module.exports = function (grunt) {
           keepSpecialComments: 0
         },
         files: {
-          '<%%= config.distDir %>/<%%= config.cssDir %>/min.css': [
+          '<%%= config.distDir %>/<%%= config.cssDir %>/main.css': [
             '<%%= config.cssDir %>/{,*/}*.css',
             '!<%%= config.cssDir %>/{,*/}*.min.css'
           ]
@@ -212,7 +212,7 @@ module.exports = function (grunt) {
     uglify: {
       dist: {
         files: {
-          '<%%= config.distDir %>/<%%= config.jsDir %>/min.almond.js': [
+          '<%%= config.distDir %>/<%%= config.jsDir %>/almond.js': [
             '<%%= config.bowerDir %>/almond/almond.js'
           ]
         }
@@ -229,7 +229,7 @@ module.exports = function (grunt) {
           baseUrl: '<%%= config.jsDir %>',
           mainConfigFile: '<%%= config.jsDir %>/config.js',
           name: 'main',
-          out: '<%%= config.distDir %>/<%%= config.jsDir %>/min.js',
+          out: '<%%= config.distDir %>/<%%= config.jsDir %>/main.js',
           paths: {
             'jquery': 'empty:'
           },
@@ -256,7 +256,7 @@ module.exports = function (grunt) {
         ],
         patterns: {
           jsmaprefs: [
-            [/(min\.js\.map)/, 'Update js to reference our revved map']
+            [/(main\.js\.map)/, 'Update js to reference our revved map']
           ]
         }
       },
@@ -271,7 +271,7 @@ module.exports = function (grunt) {
           bowerDir: '<%%= config.bowerDir %>',
         },
         html: ['<%%= config.distDir %>/Views/Shared/_Layout.cshtml'],
-        almond: '<%%= config.jsDir %>/min.almond.js',
+        almond: '<%%= config.jsDir %>/almond.js',
         components: {
           'jquery': {
             localPath: '<%%= config.bowerDir %>/jquery/dist/jquery.min.js',

@@ -157,7 +157,7 @@ module.exports = yeoman.generators.Base.extend({
     // add css refs
     if (layoutHtml.indexOf('build:css') == -1) {
       layoutHtml = this.append(layoutHtml, 'head',
-        '    <!-- build:css /' + this.cssDir + '/min.css -->\r\n' +
+        '    <!-- build:css /' + this.cssDir + '/main.css -->\r\n' +
         '    <link rel="stylesheet" href="/' + this.cssDir + '/site.css"/>\r\n' +
         '    <!-- endbuild -->\r\n'
       );
@@ -167,7 +167,7 @@ module.exports = yeoman.generators.Base.extend({
     if (layoutHtml.indexOf('build:js') == -1) {
       layoutHtml = this.append(layoutHtml, 'body',
         '    <!-- build:cdn -->\r\n' +
-        '    <!-- build:js /' + this.jsDir + '/min.js -->\r\n' +
+        '    <!-- build:js /' + this.jsDir + '/main.js -->\r\n' +
         '    <script src="/' + this.bowerDir + '/requirejs/require.js"></script>\r\n' +
         '    <script>require([\'/' + this.jsDir + '/config.js\'], function(){require([\'main\']);});</script>\r\n' +
         '    <!-- endbuild -->\r\n'
