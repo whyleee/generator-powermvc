@@ -169,7 +169,9 @@ module.exports = yeoman.generators.Base.extend({
         '    <!-- build:js /' + this.jsDir + '/almond.js -->\r\n' +
         '    <script src="/' + this.bowerDir + '/requirejs/require.js"></script>\r\n' +
         '    <!-- endbuild -->\r\n' +
+        '    <!-- build:cdnfallback /' + this.jsDir + '/jquery.js|window.jQuery -->\r\n' +
         '    <script src="/' + this.bowerDir + '/jquery/dist/jquery.js"></script>\r\n' +
+        '    <!-- endbuild -->\r\n' +
         '    <!-- build:js /' + this.jsDir + '/main.js -->\r\n' +
         '    <script src="/' + this.jsDir + '/config.js"></script>\r\n' +
         '    <script>require([\'main\']);</script>\r\n' +

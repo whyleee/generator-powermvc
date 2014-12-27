@@ -258,6 +258,16 @@ module.exports = function (grunt) {
           jsmaprefs: [
             [/(main\.js\.map)/, 'Update js to reference our revved map']
           ]
+        },
+        blockReplacements: {
+          cdnfallback: function (block) {
+            var destParts = block.dest.split('|');
+            var fallback = '<script>(' + destParts[1] + ')||' +
+              'document.write(\'<script src="' + destParts[0] + '"><\\/script>\')' +
+            '</script>';
+            return '<script src="' + block.src + '"></script>' + '\r\n' +
+              block.indent + fallback;
+          }
         }
       },
       html: ['<%%= config.distDir %>/Views/Shared/_Layout.cshtml'],
