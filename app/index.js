@@ -53,7 +53,7 @@ module.exports = yeoman.generators.Base.extend({
     }, {
       name: 'bowerDir',
       message: 'Path to Bower components?',
-      default: 'Scripts/bower_components'
+      default: 'bower_components'
     }, {
       name: 'imgDir',
       message: 'Path to images?',
