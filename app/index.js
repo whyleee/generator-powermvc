@@ -107,7 +107,6 @@ module.exports = yeoman.generators.Base.extend({
         this.bowerDir = answers.bowerDir;
         this.imgDir = answers.imgDir;
         this.fontsDir = answers.fontsDir;
-        this.distDir = 'dist';
         this.livereloadPort = 35729;
 
         this.includeNode = hasFeature('includeNode');
@@ -121,7 +120,17 @@ module.exports = yeoman.generators.Base.extend({
           }
         }
 
-        done();
+        // dist site
+        this.distDir = 'dist';
+        this.distHost = this.host;
+        this.distPort = 13000;
+
+        var distSiteName = this.projName + ':dist';
+        var distSiteUrl = 'http://' + this.distHost + ':' + this.distPort;
+        var distSitePath = path.resolve(this.distDir);
+        this._createIisExpressSite(distSiteName, distSiteUrl, distSitePath, function() {
+          done();
+        });
       }.bind(this));
     }.bind(this));
   },
@@ -134,6 +143,7 @@ module.exports = yeoman.generators.Base.extend({
     this._template('_package.json', 'package.json', /*dev*/ true);
     this._template('Gruntfile.js', 'Gruntfile.js', /*dev*/ true);
     this._template('Yeoman.Deploy.targets', 'Properties/Yeoman/Yeoman.Deploy.targets', /*dev*/ true);
+    this._template('Dist.pubxml', 'Properties/PublishProfiles/Dist.pubxml', /*dev*/ true);
   },
 
   app: function () {
@@ -298,38 +308,45 @@ module.exports = yeoman.generators.Base.extend({
 
     var useIisExpressEl = select('//msbuild:UseIISExpress/text()', doc)[0];
     var useIisExpress = useIisExpressEl && useIisExpressEl.data && useIisExpressEl.data.toUpperCase() == 'TRUE';
-    var iisCmdPath = 'c:/program files/iis express/appcmd.exe';
 
     // if iss express: create site if not exists
-    if (useIis && useIisExpress && fs.existsSync(iisCmdPath)) {
+    if (useIis && useIisExpress) {
       var siteUrl = serverUrl.replace(/\/$/, '');
       var siteName = this.projName;
       var sitePath = process.cwd();
-      var yo = this;
 
-      cp.execFile(iisCmdPath, ['list', 'site', siteUrl], {}, function(err, stdout, stderr) {
-        if (!err) {
-          cb(serverUrl, useIisExpress);
-        } else {
-          cp.execFile(iisCmdPath, ['add', 'site',
-              '/name:' + siteName,
-              '/bindings:' + siteUrl,
-              '/physicalPath:' + sitePath
-            ], {},
-            function(err, stdout, stderr) {
-              if (!err) {
-                yo.log(chalk.green('created') + ' IIS Express site');
-              } else {
-                yo.log(chalk.yellow('error') + ' creating IIS Express site');
-              }
-              cb(serverUrl, useIisExpress);
-            }
-          );
-        }
+      this._createIisExpressSite(siteName, siteUrl, sitePath, function() {
+        cb(serverUrl, useIisExpress);
       });
     } else {
       cb(serverUrl, useIisExpress);
     };
+  },
+
+  _createIisExpressSite: function(siteName, siteUrl, physicalPath, cb) {
+    var iisCmdPath = 'c:/program files/iis express/appcmd.exe';
+    var yo = this;
+
+    cp.execFile(iisCmdPath, ['list', 'site', siteUrl], {}, function(err, stdout, stderr) {
+      if (!err) {
+        cb(); // already created
+      } else {
+        cp.execFile(iisCmdPath, ['add', 'site',
+            '/name:' + siteName,
+            '/bindings:' + siteUrl,
+            '/physicalPath:' + physicalPath
+          ], {},
+          function(err, stdout, stderr) {
+            if (!err) {
+              yo.log(chalk.green('created') + ' "' + siteName + '" IIS Express site');
+            } else {
+              yo.log(chalk.yellow('error') + ' creating "' + siteName + '" IIS Express site');
+            }
+            cb();
+          }
+        );
+      }
+    });
   },
 
   _addToConfig: function(parent, elems) {

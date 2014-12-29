@@ -36,7 +36,9 @@ module.exports = function (grunt) {
     nodeHost: 'localhost',
     nodePort: 9000,
     nodeStartPath: '<%= nodeStartPath %>',<% } %>
-    distDir: 'dist'
+    distDir: '<%= distDir %>',
+    distHost: '<%= distHost %>',
+    distPort: <%= distPort %>
   };
 
   // Define the configuration for all the tasks
@@ -78,16 +80,23 @@ module.exports = function (grunt) {
           '<%%= config.imgDir %>/{,*/}*.{gif,jpeg,jpg,png,svg,webp}'
         ]
       }
-    },<% if (useIisExpress) { %>
+    },
 
     // IIS Express server settings
-    iisexpress: {
+    // Modify site settings in "%userprofile%\Documents\IISExpress\config\applicationhost.config" file
+    iisexpress: {<% if (useIisExpress) { %>
       server: {
         options: {
           site: '<%%= config.proj %>'
         }
+      },<% } %>
+      dist: {
+        options: {
+          site: '<%%= config.proj %>:dist',
+          killOnExit: false
+        }
       }
-    },<% } %><% if (includeNode) { %>
+    },<% if (includeNode) { %>
 
     // The actual grunt server settings
     connect: {
@@ -295,29 +304,34 @@ module.exports = function (grunt) {
       server: {
         path: 'http://<%%= config.host %>:<%%= config.port %><%%= config.urlpath %>',
         app: 'chrome'
+      },
+      dist: {
+        path: 'http://<%%= config.distHost %>:<%%= config.distPort %><%%= config.urlpath %>',
+        app: 'chrome'
       }
     }
   });
-  <% if (includeNode) { %>
-  grunt.registerTask('serve', function (server) {
-    if (server === 'node') {
+
+  grunt.registerTask('serve', function (mode) {<% if (includeNode) { %>
+    if (mode === 'node') {
       return grunt.task.run([
         'connect:livereload',
         'watch'
       ]);
+    }<% } %>
+    if (mode === 'dist') {
+      return grunt.task.run([
+        'iisexpress:dist',
+        'open:dist'
+      ]);
     }
 
     grunt.task.run([<% if (useIisExpress) { %>
-      'iisexpress',<% } %>
+      'iisexpress:server',<% } %>
       'open:server',
       'watch'
     ]);
-  });<% } else { %>
-  grunt.registerTask('serve', [<% if (useIisExpress) { %>
-    'iisexpress',<% } %>
-    'open:server',
-    'watch'
-  ]);<% } %>
+  });
 
   grunt.registerTask('build', function (target) {
     if (target === 'dist') {
