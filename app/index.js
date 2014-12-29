@@ -122,7 +122,7 @@ module.exports = yeoman.generators.Base.extend({
 
         // dist site
         this.distDir = 'dist';
-        this.distHost = this.host;
+        this.distHost = 'localhost';
         this.distPort = 13000;
 
         var distSiteName = this.projName + ':dist';

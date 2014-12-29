@@ -87,12 +87,16 @@ module.exports = function (grunt) {
     iisexpress: {<% if (useIisExpress) { %>
       server: {
         options: {
-          site: '<%%= config.proj %>'
+          site: '<%%= config.proj %>',
+          openUrl: 'http://<%%= config.host %>:<%%= config.port %><%%= config.urlpath %>',
+          open: true
         }
       },<% } %>
       dist: {
         options: {
           site: '<%%= config.proj %>:dist',
+          openUrl: 'http://<%%= config.distHost %>:<%%= config.distPort %><%%= config.urlpath %>',
+          open: true,
           killOnExit: false
         }
       }
@@ -302,12 +306,7 @@ module.exports = function (grunt) {
     // Open in browser
     open: {
       server: {
-        path: 'http://<%%= config.host %>:<%%= config.port %><%%= config.urlpath %>',
-        app: 'chrome'
-      },
-      dist: {
-        path: 'http://<%%= config.distHost %>:<%%= config.distPort %><%%= config.urlpath %>',
-        app: 'chrome'
+        path: 'http://<%%= config.host %>:<%%= config.port %><%%= config.urlpath %>'
       }
     }
   });
@@ -318,17 +317,17 @@ module.exports = function (grunt) {
         'connect:livereload',
         'watch'
       ]);
-    }<% } %>
+    }
+<% } %>
     if (mode === 'dist') {
       return grunt.task.run([
-        'iisexpress:dist',
-        'open:dist'
+        'iisexpress:dist'
       ]);
     }
 
     grunt.task.run([<% if (useIisExpress) { %>
-      'iisexpress:server',<% } %>
-      'open:server',
+      'iisexpress:server',<% } else { %>
+      'open:server',<% } %>
       'watch'
     ]);
   });
