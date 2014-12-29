@@ -170,8 +170,14 @@ module.exports = function (grunt) {
     // Copy files to places other tasks can use
     copy: {
       dist: {
+        nonull: true,
         src: 'Views/Shared/_Layout.cshtml',
         dest: '<%%= config.distDir %>/'
+      },
+      cdnfallback: {
+        nonull: true,
+        src: '<%%= config.bowerDir %>/jquery/dist/jquery.js',
+        dest: '<%%= config.distDir %>/<%%= config.jsDir %>/jquery.js'
       }
     },
 
@@ -261,9 +267,9 @@ module.exports = function (grunt) {
         },
         blockReplacements: {
           cdnfallback: function (block) {
-            var destParts = block.dest.split('|');
-            var fallback = '<script>(' + destParts[1] + ')||' +
-              'document.write(\'<script src="' + destParts[0] + '"><\\/script>\')' +
+            var successCheck = 'window.jQuery'; // change this for other libs
+            var fallback = '<script>(' + successCheck + ')||' +
+              'document.write(\'<script src="' + block.dest + '"><\\/script>\')' +
             '</script>';
             return '<script src="' + block.src + '"></script>' + '\r\n' +
               block.indent + fallback;
@@ -327,6 +333,7 @@ module.exports = function (grunt) {
         'uglify',
         'imagemin',
         'svgmin',
+        'copy:cdnfallback',
         'filerev',
         'usemin',
         'cdnify'
