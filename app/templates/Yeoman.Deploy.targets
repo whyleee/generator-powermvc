@@ -18,8 +18,8 @@
   </PropertyGroup>
   <!-- Restore npm packages and run grunt build -->
   <Target Name="Yo_RunGrunt">
-    <Exec Command=".bin\npm install" />
-    <Exec Command=".bin\grunt build:dist" />
+    <Exec Command="npm install" />
+    <Exec Command="grunt build:dist" />
   </Target>
   <!-- Include additional files to the deployment package -->
   <Target Name="Yo_DefineCustomWebDeployFiles">
