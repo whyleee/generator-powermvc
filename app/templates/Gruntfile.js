@@ -96,8 +96,7 @@ module.exports = function (grunt) {
         options: {
           site: '<%%= config.proj %>:dist',
           openUrl: 'http://<%%= config.distHost %>:<%%= config.distPort %><%%= config.urlpath %>',
-          open: true,
-          killOnExit: false
+          open: true
         }
       }
     },<% if (includeNode) { %>
@@ -321,7 +320,7 @@ module.exports = function (grunt) {
 <% } %>
     if (mode === 'dist') {
       return grunt.task.run([
-        'iisexpress:dist'
+        'iisexpress:dist:keepalive'
       ]);
     }
 
