@@ -24,7 +24,7 @@ Usage
 To scaffold your ASP.NET MVC app with powerfull front-end features, run the next command in
 the command prompt, from your web project location:
 
-    D:\MyProject> yo aspnet-powermvc
+    D:\MyProject> yo powermvc
 
 **Note**: make sure you have `.bin` dir in your `PATH` (should be added automatically during Yeoman
 NuGet package installation), or run `yo` tool using it's path, eg `.bin\yo` from the project
