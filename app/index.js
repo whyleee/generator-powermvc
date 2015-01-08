@@ -249,11 +249,14 @@ module.exports = yeoman.generators.Base.extend({
 
   install: function () {
     this.on('end', function () {
+      var skipMessage = this.options['skip-install-message'];
       if (!this.options['skip-install']) {
-        this.installDependencies({
-          skipMessage: this.options['skip-install-message'],
-          skipInstall: this.options['skip-install']
-        });
+        if (!skipMessage) {
+          this.env.adapter.log('Running ' + chalk.yellow.bold('npm install') + '...');
+        }
+        this.npmInstall();
+      } else if (!skipMessage) {
+        this.env.adapter.log('Done. Run ' + chalk.yellow.bold('npm install') + ' to install the required dependencies.');
       }
     });
   },

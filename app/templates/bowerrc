@@ -1,3 +1,6 @@
 {
-  "directory": "<%= bowerDir %>"
+  "directory": "<%= bowerDir %>",
+  "scripts": {
+    "postinstall": "npm run bower-requirejs"
+  }
 }

@@ -14,7 +14,6 @@ module.exports = function (grunt) {
 
   // Load grunt tasks on demand
   require('jit-grunt')(grunt, {
-    bower: 'grunt-bower-requirejs',
     cdnify: 'grunt-google-cdn'
   });
 
@@ -55,10 +54,6 @@ module.exports = function (grunt) {
       js: {
         files: ['<%%= config.jsDir %>/{,*/}*.js'],
         tasks: ['jshint']
-      },
-      bower: {
-        files: ['bower.json'],
-        tasks: ['bower-install-simple', 'bower:require']
       },
       sass: {
         files: ['<%%= config.sassDir %>/{,*/}*.{scss,sass}'],
@@ -126,11 +121,6 @@ module.exports = function (grunt) {
       dist: [
         '<%%= config.distDir %>'
       ]
-    },
-
-    // Installs missing bower components
-    'bower-install-simple': {
-      dist: {}
     },
 
     // Make sure code styles are up to par and there are no obvious mistakes
@@ -236,11 +226,6 @@ module.exports = function (grunt) {
         }
       }
     },
-    bower: {
-      require: {
-        rjsConfig: '<%%= config.jsDir %>/config.js'
-      }
-    },
     requirejs: {
       compile: {
         options: {
@@ -336,8 +321,6 @@ module.exports = function (grunt) {
       return grunt.task.run([
         'clean:dist',
         'copy:dist',
-        'bower-install-simple',
-        'bower:require',
         'sass',
         'autoprefixer',
         'requirejs',
@@ -353,8 +336,6 @@ module.exports = function (grunt) {
     }
 
     grunt.task.run([
-      'bower-install-simple',
-      'bower:require',
       'sass',
       'autoprefixer'
     ]);
