@@ -1,9 +1,5 @@
 require.config({
   baseUrl: '/<%= jsDir %>',
-  shim: {
-    
-  },
-  paths: {
-    
-  }
+  shim: {},
+  paths: {}
 });

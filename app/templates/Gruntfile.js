@@ -17,7 +17,7 @@ module.exports = function (grunt) {
     cdnify: 'grunt-google-cdn'
   });
 
-  // Configurable paths
+  // Configurable paths, options
   var config = {
     proj: '<%= projName %>',
     host: '<%= host %>',
@@ -52,7 +52,10 @@ module.exports = function (grunt) {
         nospawn: true
       },
       js: {
-        files: ['<%%= config.jsDir %>/{,*/}*.js'],
+        files: [
+          'Gruntfile.js',
+          '<%= config.jsDir %>/{,*/}*.js'
+        ],
         tasks: ['jshint']
       },
       sass: {
@@ -62,12 +65,11 @@ module.exports = function (grunt) {
           livereload: true
         }
       },
-      reload: {
+      livereload: {
         options: {
           livereload: <%= livereloadPort %>
         },
         files: [
-          'Gruntfile.js',
           'Views/**/*.cshtml',<% if (includeNode) { %>
           '<%%= config.htmlDir %>/{,*/}*.html',<% } %>
           '<%%= config.cssDir %>/{,*/}*.css',
@@ -101,7 +103,7 @@ module.exports = function (grunt) {
       options: {
         port: '<%%= config.nodePort %>',
         open: 'http://<%%= config.nodeHost %>:<%%= config.nodePort %><%%= config.nodeStartPath %>',
-        livereload: '<%%= watch.reload.options.livereload %>',
+        livereload: '<%%= watch.livereload.options.livereload %>',
         // Change this to '0.0.0.0' to access the server from outside
         hostname: '<%%= config.nodeHost %>'
       },
@@ -131,8 +133,12 @@ module.exports = function (grunt) {
       },
       all: [
         'Gruntfile.js',
-        '<%%= config.jsDir %>/*.js',
-        '!<%%= config.jsLibDir %>/*'
+        '<%%= config.jsDir %>/{,*/}*.js',
+        '!<%%= config.jsLibDir %>/*',
+        '!<%%= config.bowerDir %>/*',
+        // add your scripts below when jsDir == jsLibDir, otherwise remove next lines
+        '<%%= config.jsDir %>/config.js',
+        '<%%= config.jsDir %>/main.js'
       ]
     },
 
@@ -163,23 +169,12 @@ module.exports = function (grunt) {
         files: [{
           expand: true,
           cwd: '<%%= config.cssDir %>',
-          src: '{,*/}*.css',
+          src: [
+            '{,*/}*.css',
+            '!bootstrap*.css'
+          ],
           dest: '<%%= config.cssDir %>'
         }]
-      }
-    },
-
-    // Copy files to places other tasks can use
-    copy: {
-      dist: {
-        nonull: true,
-        src: 'Views/Shared/_Layout.cshtml',
-        dest: '<%%= config.distDir %>/'
-      },
-      cdnfallback: {
-        nonull: true,
-        src: '<%%= config.bowerDir %>/jquery/dist/jquery.js',
-        dest: '<%%= config.distDir %>/<%%= config.jsDir %>/jquery.js'
       }
     },
 
@@ -194,6 +189,7 @@ module.exports = function (grunt) {
         }]
       }
     },
+
     svgmin: {
       dist: {
         files: [{
@@ -204,6 +200,7 @@ module.exports = function (grunt) {
         }]
       }
     },
+
     cssmin: {
       dist: {
         options: {
@@ -217,8 +214,9 @@ module.exports = function (grunt) {
         }
       }
     },
+
     uglify: {
-      dist: {
+      almond: {
         files: {
           '<%%= config.distDir %>/<%%= config.jsDir %>/almond.js': [
             '<%%= config.bowerDir %>/almond/almond.js'
@@ -226,6 +224,7 @@ module.exports = function (grunt) {
         }
       }
     },
+
     requirejs: {
       compile: {
         options: {
@@ -242,6 +241,8 @@ module.exports = function (grunt) {
         }
       }
     },
+
+    // Renames files for browser caching purposes
     filerev: {
       dist: {
         src: [
@@ -251,6 +252,8 @@ module.exports = function (grunt) {
         ]
       }
     },
+
+    // Performs rewrites based on rev and usemin blocks in html
     usemin: {
       options: {
         assetsDirs: [
@@ -277,6 +280,8 @@ module.exports = function (grunt) {
       css: ['<%%= config.distDir %>/<%%= config.cssDir %>/{,*/}*.css'],
       jsmaprefs: ['<%%= config.distDir %>/<%%= config.jsDir %>/{,*/}*.js']
     },
+
+    // Replaces bower script refs in html to cdn urls
     cdnify: {
       options: {
         cdn: require('google-cdn-data'),
@@ -284,6 +289,20 @@ module.exports = function (grunt) {
       },
       dist: {
         html: ['<%%= config.distDir %>/Views/Shared/_Layout.cshtml']
+      }
+    },
+
+    // Copy files to places other tasks can use
+    copy: {
+      layout: {
+        nonull: true,
+        src: 'Views/Shared/_Layout.cshtml',
+        dest: '<%%= config.distDir %>/'
+      },
+      cdnfallback: {
+        nonull: true,
+        src: '<%%= config.bowerDir %>/jquery/dist/jquery.js',
+        dest: '<%%= config.distDir %>/<%%= config.jsDir %>/jquery.js'
       }
     },
 
@@ -320,7 +339,7 @@ module.exports = function (grunt) {
     if (target === 'dist') {
       return grunt.task.run([
         'clean:dist',
-        'copy:dist',
+        'copy:layout',
         'sass',
         'autoprefixer',
         'requirejs',

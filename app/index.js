@@ -41,19 +41,19 @@ module.exports = yeoman.generators.Base.extend({
     }, {
       name: 'sassDir',
       message: 'Path to sass files?',
-      default: 'Content/sass'
+      default: 'sass'
     }, {
       name: 'jsDir',
       message: 'Path to js files?',
       default: 'Scripts'
     }, {
-      name: 'jsLibDir',
-      message: 'Path to external js files?',
-      default: 'Scripts'
-    }, {
       name: 'bowerDir',
       message: 'Path to Bower components?',
       default: 'bower_components'
+    }, {
+      name: 'jsLibDir',
+      message: 'Path to third-party js files?',
+      default: 'Scripts'
     }, {
       name: 'imgDir',
       message: 'Path to images?',
@@ -155,7 +155,7 @@ module.exports = yeoman.generators.Base.extend({
     var siteCssExists = fs.existsSync(this.cssDir + '/site.css');
     if (siteCssExists) {
       var siteCss = this.readFileAsString(this.cssDir + '/site.css');
-      this._create(this.sassDir + '/site.scss', siteCss);
+      this._create(this.sassDir + '/site.scss', siteCss, /*dev*/ true);
     } else {
       this._copy('site.scss', this.sassDir + '/site.scss');
     }
@@ -254,7 +254,9 @@ module.exports = yeoman.generators.Base.extend({
         if (!skipMessage) {
           this.env.adapter.log('Running ' + chalk.yellow.bold('npm install') + '...');
         }
-        this.npmInstall();
+        this.npmInstall(null, null, function() {
+          this.spawnCommand('npm', ['run', 'bower-requirejs']);
+        }.bind(this));
       } else if (!skipMessage) {
         this.env.adapter.log('Done. Run ' + chalk.yellow.bold('npm install') + ' to install the required dependencies.');
       }
