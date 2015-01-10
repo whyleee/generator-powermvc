@@ -37,7 +37,8 @@ module.exports = function (grunt) {
     nodeStartPath: '<%= nodeStartPath %>',<% } %>
     distDir: '<%= distDir %>',
     distHost: '<%= distHost %>',
-    distPort: <%= distPort %>
+    distPort: <%= distPort %>,
+    vsVer: '<%= vsVer %>'
   };
 
   // Define the configuration for all the tasks
@@ -131,7 +132,7 @@ module.exports = function (grunt) {
         src: ['<%%= config.proj %>.csproj'],
         options: {
           buildParameters: {
-            VisualStudioVersion: '14.0'
+            VisualStudioVersion: '<%%= config.vsVer %>'
           },
           verbosity: 'minimal'
         }
@@ -140,7 +141,7 @@ module.exports = function (grunt) {
         src: ['<%%= config.proj %>.csproj'],
         options: {
           buildParameters: {
-            VisualStudioVersion: '14.0',
+            VisualStudioVersion: '<%%= config.vsVer %>',
             DeployOnBuild: 'true',
             PublishProfile: 'Dist'
           },

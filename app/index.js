@@ -93,44 +93,48 @@ module.exports = yeoman.generators.Base.extend({
       this.projName = path.basename(process.cwd());
 
       this._getServerUrl(function(serverUrl, useIisExpress) {
-        serverUrl = parseUrl(serverUrl);
+        this._getVsVer(function(vsVer) {
+          serverUrl = parseUrl(serverUrl);
 
-        this.host = serverUrl.hostname;
-        this.port = serverUrl.port || 80;
-        this.urlpath = serverUrl.pathname || '/';
-        this.useIisExpress = useIisExpress;
+          this.vsVer = vsVer;
+          
+          this.host = serverUrl.hostname;
+          this.port = serverUrl.port || 80;
+          this.urlpath = serverUrl.pathname || '/';
+          this.useIisExpress = useIisExpress;
 
-        this.cssDir = answers.cssDir;
-        this.sassDir = answers.sassDir;
-        this.jsDir = answers.jsDir;
-        this.jsLibDir = answers.jsLibDir;
-        this.bowerDir = answers.bowerDir;
-        this.imgDir = answers.imgDir;
-        this.fontsDir = answers.fontsDir;
-        this.livereloadPort = 35729;
+          this.cssDir = answers.cssDir;
+          this.sassDir = answers.sassDir;
+          this.jsDir = answers.jsDir;
+          this.jsLibDir = answers.jsLibDir;
+          this.bowerDir = answers.bowerDir;
+          this.imgDir = answers.imgDir;
+          this.fontsDir = answers.fontsDir;
+          this.livereloadPort = 35729;
 
-        this.includeNode = hasFeature('includeNode');
+          this.includeNode = hasFeature('includeNode');
 
-        if (this.includeNode) {
-          this.htmlDir = answers.htmlDir;
-          this.nodeStartPath = answers.nodeStartPath;
+          if (this.includeNode) {
+            this.htmlDir = answers.htmlDir;
+            this.nodeStartPath = answers.nodeStartPath;
 
-          if (!this.nodeStartPath.indexOf('/') == 0) {
-            this.nodeStartPath = '/' + this.nodeStartPath;
+            if (!this.nodeStartPath.indexOf('/') == 0) {
+              this.nodeStartPath = '/' + this.nodeStartPath;
+            }
           }
-        }
 
-        // dist site
-        this.distDir = 'dist';
-        this.distHost = 'localhost';
-        this.distPort = 13000;
+          // dist site
+          this.distDir = 'dist';
+          this.distHost = 'localhost';
+          this.distPort = 13000;
 
-        var distSiteName = this.projName + ':dist';
-        var distSiteUrl = 'http://' + this.distHost + ':' + this.distPort;
-        var distSitePath = path.resolve(this.distDir);
-        this._createIisExpressSite(distSiteName, distSiteUrl, distSitePath, function() {
-          done();
-        });
+          var distSiteName = this.projName + ':dist';
+          var distSiteUrl = 'http://' + this.distHost + ':' + this.distPort;
+          var distSitePath = path.resolve(this.distDir);
+          this._createIisExpressSite(distSiteName, distSiteUrl, distSitePath, function() {
+            done();
+          });
+        }.bind(this));
       }.bind(this));
     }.bind(this));
   },
@@ -291,6 +295,37 @@ module.exports = yeoman.generators.Base.extend({
       dev: Boolean(dev)
     });
     this.write(path, content);
+  },
+  
+  _getVsVer: function(cb) {
+    var vsVer = '12.0'; // default, latest RTM (VS 2013)
+
+    if (process.platform == 'win32') {
+      var Winreg = require('winreg');
+      var hkcr = new Winreg({
+        hive: Winreg.HKCR
+      });
+
+      hkcr.keys(function(err, keys) {
+        if (err) throw err;
+
+        var dtes = keys.filter(function(key) {
+          return key.key.indexOf('\\VisualStudio.DTE.') === 0;
+        });
+
+        dtes.forEach(function(dte) {
+          console.log(dte.key);
+        });
+
+        if (dtes.length > 0) {
+          var latestDte = dtes[dtes.length - 1];
+          vsVer = latestDte.key.replace('\\VisualStudio.DTE.', '');
+          cb(vsVer);
+        }
+      });
+    } else {
+      cb(vsVer);
+    }
   },
 
   // async
