@@ -169,12 +169,19 @@ module.exports = yeoman.generators.Base.extend({
     var layoutHtml = this.readFileAsString('Views/Shared/_Layout.cshtml');
 
     // add css refs
+    var bootstrapCssExists = fs.existsSync(this.cssDir + '/bootstrap.css');
+
     if (layoutHtml.indexOf('build:css') == -1) {
       layoutHtml = this.append(layoutHtml, 'head',
         '    <!-- build:css /' + this.cssDir + '/main.css -->\r\n' +
+        (bootstrapCssExists ?
+        '    <link rel="stylesheet" href="/' + this.cssDir + '/bootstrap.css"/>\r\n'
+        : '') +
         '    <link rel="stylesheet" href="/' + this.cssDir + '/site.css"/>\r\n' +
         '    <!-- endbuild -->\r\n'
       );
+    } else {
+      this.log('usemin css blocks found, skipping... (remove to override)');
     }
 
     // add js refs
@@ -191,10 +198,12 @@ module.exports = yeoman.generators.Base.extend({
         '    <script>require([\'main\']);</script>\r\n' +
         '    <!-- endbuild -->\r\n'
       );
+    } else {
+      this.log('usemin js blocks found, skipping... (remove to override)');
     }
 
     // comment all bundle refs
-    layoutHtml = layoutHtml.replace(/(@\*\s*)?(@Scripts\.Render\(.+\)|@Styles\.Render\(.+\))(\s*\*@)?/g, '@\*$2\*@');
+    layoutHtml = layoutHtml.replace(/(@\*\s*)?(@Scripts\.Render(Format)?\(.+\)|@Styles\.Render(Format)?\(.+\))(\s*\*@)?/g, '@\*$2\*@');
 
     // insert livereload ref
     if (layoutHtml.indexOf('//localhost:' + this.livereloadPort + '/livereload.js') == -1) {
@@ -203,6 +212,8 @@ module.exports = yeoman.generators.Base.extend({
         '    <script src="//localhost:' + this.livereloadPort + '/livereload.js"></script>\r\n' +
         '    <!-- endbuild -->\r\n'
       );
+    } else {
+      this.log('livereload.js ref found, skipping... (remove to override)');
     }
 
     this.write('Views/Shared/_Layout.cshtml', layoutHtml);
@@ -256,13 +267,13 @@ module.exports = yeoman.generators.Base.extend({
       var skipMessage = this.options['skip-install-message'];
       if (!this.options['skip-install']) {
         if (!skipMessage) {
-          this.env.adapter.log('Running ' + chalk.yellow.bold('npm install') + '...');
+          this.log('Running ' + chalk.yellow.bold('npm install') + '...');
         }
         this.npmInstall(null, null, function() {
           this.spawnCommand('npm', ['run', 'bower-requirejs']);
         }.bind(this));
       } else if (!skipMessage) {
-        this.env.adapter.log('Done. Run ' + chalk.yellow.bold('npm install') + ' to install the required dependencies.');
+        this.log('Done. Run ' + chalk.yellow.bold('npm install') + ' to install the required dependencies.');
       }
     });
   },
@@ -296,7 +307,7 @@ module.exports = yeoman.generators.Base.extend({
     });
     this.write(path, content);
   },
-  
+
   _getVsVer: function(cb) {
     var vsVer = '12.0'; // default, latest RTM (VS 2013)
 
@@ -311,10 +322,6 @@ module.exports = yeoman.generators.Base.extend({
 
         var dtes = keys.filter(function(key) {
           return key.key.indexOf('\\VisualStudio.DTE.') === 0;
-        });
-
-        dtes.forEach(function(dte) {
-          console.log(dte.key);
         });
 
         if (dtes.length > 0) {
