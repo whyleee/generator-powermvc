@@ -109,7 +109,7 @@ module.exports = function (grunt) {
       },
       livereload: {
         options: {
-          middleware: function(connect) {
+          middleware: function (connect) {
             return [
               connect.static('.')
             ];
@@ -117,6 +117,37 @@ module.exports = function (grunt) {
         }
       },
     },<% } %>
+
+    // Builds or publishes Visual Studio project
+    msbuild: {
+      clean: {
+        src: ['<%%= config.proj %>.csproj'],
+        options: {
+          targets: 'Clean',
+          verbosity: 'minimal'
+        }
+      },
+      proj: {
+        src: ['<%%= config.proj %>.csproj'],
+        options: {
+          buildParameters: {
+            VisualStudioVersion: '14.0'
+          },
+          verbosity: 'minimal'
+        }
+      },
+      dist: {
+        src: ['<%%= config.proj %>.csproj'],
+        options: {
+          buildParameters: {
+            VisualStudioVersion: '14.0',
+            DeployOnBuild: 'true',
+            PublishProfile: 'Dist'
+          },
+          verbosity: 'minimal'
+        }
+      }
+    },
 
     // Empties files/dirs to start fresh
     clean: {
@@ -335,7 +366,7 @@ module.exports = function (grunt) {
     ]);
   });
 
-  grunt.registerTask('build', function (target) {
+  grunt.registerTask('build', function (target, flag) {
     if (target === 'dist') {
       return grunt.task.run([
         'clean:dist',
@@ -354,9 +385,30 @@ module.exports = function (grunt) {
       ]);
     }
 
-    grunt.task.run([
+    var tasks = [
       'sass',
       'autoprefixer'
+    ];
+
+    if (target === 'proj') {
+      tasks.unshift('msbuild:proj');
+    }
+
+    if (flag === 'clean') {
+      tasks.unshift('msbuild:clean');
+    }
+
+    grunt.task.run(tasks);
+  });
+
+  grunt.registerTask('publish', function (target) {
+    if (!target) {
+      target = 'dist';
+    }
+
+    return grunt.task.run([
+      'msbuild:' + target,
+      'serve:' + target
     ]);
   });
 
