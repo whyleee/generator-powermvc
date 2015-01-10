@@ -55,7 +55,7 @@ module.exports = function (grunt) {
       js: {
         files: [
           'Gruntfile.js',
-          '<%= config.jsDir %>/{,*/}*.js'
+          '<%%= config.jsDir %>/{,*/}*.js'
         ],
         tasks: ['jshint']
       },
