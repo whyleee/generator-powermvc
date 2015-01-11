@@ -17,6 +17,30 @@ module.exports = yeoman.generators.Base.extend({
     this.pkg = require('../package.json');
   },
 
+  dirCheck: function () {
+    var dirHint = 'This generator is meant be used together with ' +
+      'ASP.NET MVC projects. Go to your MVC project directory and ' +
+      'run ' + chalk.yellow.bold('yo powermvc') + ' again.';
+    var dirFiles = fs.readdirSync(process.cwd());
+
+    if (dirFiles.length == 0) {
+      this.log(chalk.red('Directory is empty.\n') + dirHint);
+      process.exit(1);
+    }
+
+    var hasWebConfig = dirFiles.some(function(file) {
+      return file.toLowerCase() == 'web.config';
+    });
+
+    if (!hasWebConfig) {
+      this.log(chalk.red('Web.config is missing.\n') +
+        'Looks like you\'re not inside ASP.NET MVC project directory.\n' +
+        dirHint
+      );
+      process.exit(1);
+    }
+  },
+
   askFor: function () {
     var done = this.async();
 
