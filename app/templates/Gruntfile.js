@@ -19,10 +19,12 @@ module.exports = function (grunt) {
 
   // Configurable paths, options
   var config = {
+    // project settings
     proj: '<%= projName %>',
-    host: '<%= host %>',
-    port: <%= port %>,
-    urlpath: '<%= urlpath %>',
+    vsVer: '<%= vsVer %>',
+    layoutPath: '<%= layoutPath %>',
+
+    // paths
     cssDir: '<%= cssDir %>',
     sassDir: '<%= sassDir %>',
     jsDir: '<%= jsDir %>',
@@ -30,15 +32,23 @@ module.exports = function (grunt) {
     bowerDir: '<%= bowerDir %>',
     bowerDirName: require('path').basename('<%= bowerDir %>'),
     imgDir: '<%= imgDir %>',
-    fontsDir: '<%= fontsDir %>',<% if (includeNode) { %>
+    fontsDir: '<%= fontsDir %>',
+
+    // server settings
+    host: '<%= host %>',
+    port: <%= port %>,
+    urlpath: '<%= urlpath %>',<% if (includeNode) { %>
+
+    // node server settings
     htmlDir: '<%= htmlDir %>',
     nodeHost: 'localhost',
     nodePort: 9000,
     nodeStartPath: '<%= nodeStartPath %>',<% } %>
+
+    // dist site settings
     distDir: '<%= distDir %>',
     distHost: '<%= distHost %>',
-    distPort: <%= distPort %>,
-    vsVer: '<%= vsVer %>'
+    distPort: <%= distPort %>
   };
 
   // Define the configuration for all the tasks
@@ -308,7 +318,7 @@ module.exports = function (grunt) {
           }
         }
       },
-      html: ['<%%= config.distDir %>/Views/Shared/_Layout.cshtml'],
+      html: ['<%%= config.distDir %>/<%%= config.layoutPath %>'],
       css: ['<%%= config.distDir %>/<%%= config.cssDir %>/{,*/}*.css'],
       jsmaprefs: ['<%%= config.distDir %>/<%%= config.jsDir %>/{,*/}*.js']
     },
@@ -320,7 +330,7 @@ module.exports = function (grunt) {
         componentsPath: '<%%= config.bowerDir %>'
       },
       dist: {
-        html: ['<%%= config.distDir %>/Views/Shared/_Layout.cshtml']
+        html: ['<%%= config.distDir %>/<%%= config.layoutPath %>']
       }
     },
 
@@ -328,7 +338,7 @@ module.exports = function (grunt) {
     copy: {
       layout: {
         nonull: true,
-        src: 'Views/Shared/_Layout.cshtml',
+        src: '<%%= config.layoutPath %>',
         dest: '<%%= config.distDir %>/'
       },
       cdnfallback: {

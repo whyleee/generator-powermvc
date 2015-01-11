@@ -52,7 +52,7 @@
     <ExcludeFromPackageFiles Include="<%= imgDir.replace(/\//g, '\\') %>\**">
       <FromTarget>Project</FromTarget>
     </ExcludeFromPackageFiles>
-    <ExcludeFromPackageFiles Include="Views\Shared\_Layout.cshtml">
+    <ExcludeFromPackageFiles Include="<%= layoutPath.replace(/\//g, '\\') %>">
       <FromTarget>Project</FromTarget>
     </ExcludeFromPackageFiles>
   </ItemGroup>

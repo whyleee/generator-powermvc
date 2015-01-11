@@ -120,13 +120,11 @@ module.exports = yeoman.generators.Base.extend({
         this._getVsVer(function(vsVer) {
           serverUrl = parseUrl(serverUrl);
 
+          // project settings
           this.vsVer = vsVer;
-          
-          this.host = serverUrl.hostname;
-          this.port = serverUrl.port || 80;
-          this.urlpath = serverUrl.pathname || '/';
-          this.useIisExpress = useIisExpress;
+          this.layoutPath = this._getLayoutPath();
 
+          // paths
           this.cssDir = answers.cssDir;
           this.sassDir = answers.sassDir;
           this.jsDir = answers.jsDir;
@@ -134,8 +132,15 @@ module.exports = yeoman.generators.Base.extend({
           this.bowerDir = answers.bowerDir;
           this.imgDir = answers.imgDir;
           this.fontsDir = answers.fontsDir;
+
+          // server settings
+          this.host = serverUrl.hostname;
+          this.port = serverUrl.port || 80;
+          this.urlpath = serverUrl.pathname || '/';
+          this.useIisExpress = useIisExpress;
           this.livereloadPort = 35729;
 
+          // node server settings
           this.includeNode = hasFeature('includeNode');
 
           if (this.includeNode) {
@@ -161,6 +166,35 @@ module.exports = yeoman.generators.Base.extend({
         }.bind(this));
       }.bind(this));
     }.bind(this));
+  },
+
+  _getLayoutPath: function() {
+    var layoutPath = 'Views/Shared/_Layout.cshtml';
+
+    if (fs.existsSync(layoutPath)) {
+      return layoutPath;
+    }
+
+    var viewStartPath = 'Views/_ViewStart.cshtml';
+
+    if (!fs.existsSync(viewStartPath)) {
+      return layoutPath;
+    }
+
+    var viewStart = this.readFileAsString(viewStartPath);
+    var layoutMatches = viewStart.match(/Layout\s*=\s*"([^"]+)"/);
+
+    if (layoutMatches.length == 0) {
+      return layoutPath;
+    }
+
+    layoutPath = layoutMatches[1].replace('~/', '');
+
+    if (layoutPath[0] == '/') {
+      layoutPath = layoutPath.slice(1);
+    }
+
+    return layoutPath;
   },
 
   configs: function() {
@@ -190,7 +224,7 @@ module.exports = yeoman.generators.Base.extend({
   },
 
   refs: function() {
-    var layoutHtml = this.readFileAsString('Views/Shared/_Layout.cshtml');
+    var layoutHtml = this.readFileAsString(this.layoutPath);
 
     // add css refs
     var bootstrapCssExists = fs.existsSync(this.cssDir + '/bootstrap.css');
@@ -240,7 +274,7 @@ module.exports = yeoman.generators.Base.extend({
       this.log('livereload.js ref found, skipping... (remove to override)');
     }
 
-    this.write('Views/Shared/_Layout.cshtml', layoutHtml);
+    this.write(this.layoutPath, layoutHtml);
   },
 
   csproj: function () {
