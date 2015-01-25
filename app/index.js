@@ -135,6 +135,8 @@ module.exports = yeoman.generators.Base.extend({
           this.imgDir = answers.imgDir;
           this.fontsDir = answers.fontsDir;
 
+          this.bootstrapCssExists = fs.existsSync(this.cssDir + '/bootstrap.css');
+
           // server settings
           this.host = serverUrl.hostname;
           this.port = serverUrl.port || 80;
@@ -233,12 +235,10 @@ module.exports = yeoman.generators.Base.extend({
     var layoutHtml = this.readFileAsString(this.layoutPath);
 
     // add css refs
-    var bootstrapCssExists = fs.existsSync(this.cssDir + '/bootstrap.css');
-
     if (layoutHtml.indexOf('build:css') == -1) {
       layoutHtml = this.append(layoutHtml, 'head',
         '    <!-- build:css /' + this.cssDir + '/main.css -->\r\n' +
-        (bootstrapCssExists ?
+        (this.bootstrapCssExists ?
         '    <link rel="stylesheet" href="/' + this.cssDir + '/bootstrap.css"/>\r\n'
         : '') +
         '    <link rel="stylesheet" href="/' + this.cssDir + '/site.css"/>\r\n' +

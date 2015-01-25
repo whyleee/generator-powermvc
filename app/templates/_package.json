@@ -33,6 +33,6 @@
   },
   "scripts": {
     "postinstall": "bower install",
-    "bower-requirejs": "bower-requirejs -c Scripts/config.js"
+    "bower-requirejs": "bower-requirejs -c <%= jsDir %>/config.js"
   }
 }
