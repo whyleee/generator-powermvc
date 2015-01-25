@@ -132,26 +132,19 @@ module.exports = function (grunt) {
     // Builds or publishes Visual Studio project
     msbuild: {
       clean: {
-        src: ['<%%= config.proj %>.csproj'],
         options: {
           targets: 'Clean',
           verbosity: 'minimal'
         }
       },
       proj: {
-        src: ['<%%= config.proj %>.csproj'],
         options: {
-          buildParameters: {
-            VisualStudioVersion: '<%%= config.vsVer %>'
-          },
           verbosity: 'minimal'
         }
       },
       dist: {
-        src: ['<%%= config.proj %>.csproj'],
         options: {
           buildParameters: {
-            VisualStudioVersion: '<%%= config.vsVer %>',
             DeployOnBuild: 'true',
             PublishProfile: 'Dist'
           },
