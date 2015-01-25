@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home - <%= projName %> (node.js)</title>
+  <link rel="stylesheet" href="/Content/site.css">
+</head>
+<body>
+  <h1>Welcome to <%= projName %>!</h1>
+  <p>
+    This page is hosted by <a href="http://nodejs.org/">node.js</a> to work with mockup independently from the main app.
+    Node.js server (<a href="https://github.com/senchalabs/connect">connect</a>) is cross-platform and free you up from back-end setup complexities.
+  </p>
+
+  <script src="/bower_components/requirejs/require.js"></script>
+  <script src="/Scripts/config.js"></script>
+  <script>require(['main']);</script>
+</body>
+</html>

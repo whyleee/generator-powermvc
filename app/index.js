@@ -104,7 +104,9 @@ module.exports = yeoman.generators.Base.extend({
       when: nodeIncluded,
       name: 'nodeStartPath',
       message: 'Start path for Node.js server?',
-      default: '/html/index.html'
+      default: function(answers) {
+        return answers.htmlDir + '/index.html';
+      }
     }];
 
     this.prompt(prompts, function (answers) {
@@ -206,6 +208,10 @@ module.exports = yeoman.generators.Base.extend({
     this._template('Gruntfile.js', 'Gruntfile.js', /*dev*/ true);
     this._template('Yeoman.Deploy.targets', 'Properties/Yeoman/Yeoman.Deploy.targets', /*dev*/ true);
     this._template('Dist.pubxml', 'Properties/PublishProfiles/Dist.pubxml', /*dev*/ true);
+
+    if (this.includeNode) {
+      this._template('index.html', this.nodeStartPath.slice(1));
+    }
   },
 
   app: function () {
