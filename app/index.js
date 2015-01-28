@@ -136,6 +136,8 @@ module.exports = yeoman.generators.Base.extend({
           this.fontsDir = answers.fontsDir;
 
           this.bootstrapCssExists = fs.existsSync(this.cssDir + '/bootstrap.css');
+          this.cssName = fs.existsSync(this.cssDir + '/main.css') ? 'main' :
+                         fs.existsSync(this.cssDir + '/site.css') ? 'site' : null;
 
           // server settings
           this.host = serverUrl.hostname;
@@ -222,12 +224,12 @@ module.exports = yeoman.generators.Base.extend({
     this._copy('main.js', this.jsDir + '/main.js');
 
     // css
-    var siteCssExists = fs.existsSync(this.cssDir + '/site.css');
-    if (siteCssExists) {
-      var siteCss = this.readFileAsString(this.cssDir + '/site.css');
-      this._create(this.sassDir + '/site.scss', siteCss, /*dev*/ true);
+    if (this.cssName) {
+      var mainCss = this.readFileAsString(this.cssDir + '/' + this.cssName + '.css');
+      this._create(this.sassDir + '/' + this.cssName + '.scss', mainCss, /*dev*/ true);
     } else {
-      this._copy('site.scss', this.sassDir + '/site.scss');
+      this._copy('main.scss', this.sassDir + '/main.scss', /*dev*/ true);
+      this.cssName = 'main';
     }
   },
 
@@ -241,7 +243,7 @@ module.exports = yeoman.generators.Base.extend({
         (this.bootstrapCssExists ?
         '    <link rel="stylesheet" href="/' + this.cssDir + '/bootstrap.css"/>\r\n'
         : '') +
-        '    <link rel="stylesheet" href="/' + this.cssDir + '/site.css"/>\r\n' +
+        '    <link rel="stylesheet" href="/' + this.cssDir + '/' + this.cssName + '.css"/>\r\n' +
         '    <!-- endbuild -->\r\n'
       );
     } else {
