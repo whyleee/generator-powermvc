@@ -280,6 +280,14 @@ module.exports = yeoman.generators.Base.extend({
       this.log('livereload.js ref found, skipping... (remove to override)');
     }
 
+    // move 'scripts' mvc section to the bottom
+    var mvcScriptsSection = layoutHtml.match(/[ \t]*(@RenderSection\("scripts".+\))[ \t]*\r\n/g);
+
+    if (mvcScriptsSection) {
+      layoutHtml = layoutHtml.replace(mvcScriptsSection[0], '');
+      layoutHtml = this.append(layoutHtml, 'body', mvcScriptsSection[0]);
+    }
+
     this.write(this.layoutPath, layoutHtml);
   },
 
