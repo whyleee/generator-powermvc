@@ -162,7 +162,7 @@ module.exports = yeoman.generators.Base.extend({
     // dist site
     this.distDir = 'dist';
     this.distHost = 'localhost';
-    this.distPort = 13000;
+    this.distPort = 13000 + Math.floor(Math.random() * 1000);
   },
 
   devSite: function() {
