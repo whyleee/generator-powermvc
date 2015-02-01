@@ -1,7 +1,7 @@
 {
   "name": "generator-powermvc",
   "version": "0.5.0",
-  "description": "Powerfull front-end features for ASP.NET MVC apps",
+  "description": "Grunt front-end build stack for ASP.NET MVC projects.",
   "license": "MIT",
   "repository": "whyleee/generator-powermvc",
   "author": "Pavel Nezhencev",
@@ -19,7 +19,11 @@
     "asp.net",
     "aspnet",
     "mvc",
-    "grunt"
+    "grunt",
+    "sass",
+    "jquery",
+    "require.js",
+    "requirejs"
   ],
   "dependencies": {
     "chalk": "^0.5.1",
