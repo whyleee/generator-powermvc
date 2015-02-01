@@ -187,9 +187,11 @@ module.exports = yeoman.generators.Base.extend({
     var distSitePath = path.resolve(this.distDir);
 
     var done = this.async();
-    vs.createIisExpressSite(distSiteName, distSiteUrl, distSitePath, function(err, created) {
-      this._logIisSite(distSiteName, err, created);
-      done();
+    vs.deleteIisExpressSite(distSiteName, function(err) {
+      vs.createIisExpressSite(distSiteName, distSiteUrl, distSitePath, function(err, created) {
+        this._logIisSite(distSiteName, err, created);
+        done();
+      }.bind(this));
     }.bind(this));
   },
 

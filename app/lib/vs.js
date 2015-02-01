@@ -86,6 +86,14 @@ module.exports = {
     });
   },
 
+  deleteIisExpressSite: function(siteName, cb) {
+    var iisCmdPath = 'c:/program files/iis express/appcmd.exe';
+
+    cp.execFile(iisCmdPath, ['delete', 'site', siteName], {}, function(err, stdout, stderr) {
+      cb(err)
+    });
+  },
+
   // gets the path of default mvc layout
   getLayoutPath: function() {
     var layoutPath = 'Views/Shared/_Layout.cshtml';
