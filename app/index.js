@@ -200,7 +200,7 @@ module.exports = yeoman.generators.Base.extend({
     this._template('_bower.json', 'bower.json', /*dev*/ true);
     this._template('_package.json', 'package.json', /*dev*/ true);
     this._template('Gruntfile.js', 'Gruntfile.js', /*dev*/ true);
-    this._template('Yeoman.Deploy.targets', 'Properties/Yeoman/Yeoman.Deploy.targets', /*dev*/ true);
+    this._template('PowerMvc.Deploy.targets', 'Properties/PowerMvc/PowerMvc.Deploy.targets', /*dev*/ true);
     this._template('Dist.pubxml', 'Properties/PublishProfiles/Dist.pubxml', /*dev*/ true);
   },
 

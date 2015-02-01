@@ -55,7 +55,7 @@ Grunt **publish** task is used to preview minified/bundled local app and deploy 
 Deployment
 ----------
 
-Generator includes `Properties/Yeoman/Yeoman.Deploy.targets` file with MsBuild scripts to build release versions of all client-side files during MsDeploy execution (when publishing in Visual Studio or running the build server) and put all these files into the deployment package.
+Generator includes `Properties/PowerMvc/PowerMvc.Deploy.targets` file with MsBuild scripts to build release versions of all client-side files during MsDeploy execution (when publishing in Visual Studio or running the build server) and put all these files into the deployment package.
 
 Basically MsBuild just executes `npm install` and `grunt build:dist` commands, and replaces css/js/images/html files in the deployment package by their optimized versions.
 
